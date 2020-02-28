@@ -29,6 +29,9 @@ import org.springframework.util.StringUtils;
  * @since 3.0
  * @see Class#getResource(String)
  * @see ClassPathResource#ClassPathResource(String, Class)
+ * 【可以根据给定的class 所在包或者所在包的子包下加载资源。】
+ * 是 DefaultResourceLoader 的另一个子类的实现。和 FileSystemResourceLoader 类似，在实现代码的结构上类似，也是覆写 #getResourceByPath(String path) 方法，
+ * 并返回其【对应的 ClassRelativeContextResource 的资源类型】
  */
 public class ClassRelativeResourceLoader extends DefaultResourceLoader {
 

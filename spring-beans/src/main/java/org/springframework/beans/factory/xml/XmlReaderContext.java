@@ -40,6 +40,7 @@ import java.io.StringReader;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ *
  */
 public class XmlReaderContext extends ReaderContext {
 

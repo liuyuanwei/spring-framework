@@ -44,6 +44,8 @@ import org.springframework.util.StringUtils;
  * @since 10.03.2004
  * @see FileSystemResourceLoader
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
+ * 与 AbstractResource 相似，org.springframework.core.io.DefaultResourceLoader 是 ResourceLoader 的默认实现。
+ * 在自定 ResourceLoader 的时候我们除了可以继承该类外还可以实现 ProtocolResolver 接口来实现自定资源加载协议。
  */
 public class DefaultResourceLoader implements ResourceLoader {
 

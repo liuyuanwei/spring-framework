@@ -34,6 +34,8 @@ package org.springframework.core.io;
  * @since 1.1.3
  * @see DefaultResourceLoader
  * @see org.springframework.context.support.FileSystemXmlApplicationContext
+ * 它继承 DefaultResourceLoader ，且覆写了 #getResourceByPath(String) 方法，
+ * 使之从文件系统加载资源【并以 FileSystemResource 类型】返回
  */
 @SuppressWarnings("JavadocReference")
 public class FileSystemResourceLoader extends DefaultResourceLoader {

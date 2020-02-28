@@ -52,6 +52,7 @@ import java.util.*;
  * @since 2.0
  * @see ParserContext
  * @see DefaultBeanDefinitionDocumentReader
+ * BeanDefinitionParserDelegate 是一个重要的类，它负责解析 BeanDefinition
  */
 public class BeanDefinitionParserDelegate {
 
@@ -416,7 +417,7 @@ public class BeanDefinitionParserDelegate {
         // 解析属性，构造 AbstractBeanDefinition 对象
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
-		    // beanName ，再次，使用 beanName 生成规则
+		    // beanName还是为空，使用 默认规则生产默认的beanName
 			if (!StringUtils.hasText(beanName)) {
 				try {
 					if (containingBean != null) {
@@ -499,6 +500,7 @@ public class BeanDefinitionParserDelegate {
 
 		try {
             // 创建用于承载属性的 AbstractBeanDefinition 实例
+			// ！！！委托 BeanDefinitionReaderUtils 创建AbstractBeanDefinition对象
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
             // 解析默认 bean 的各种属性

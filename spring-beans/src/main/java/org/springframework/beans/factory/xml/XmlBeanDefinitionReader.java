@@ -310,6 +310,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	@Override
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
+		// 这里为什么需要将 Resource 封装成 EncodedResource 呢？主要是为了对 Resource 进行编码，保证内容读取的正确性。
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
 
@@ -399,6 +400,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             // 获取 XML Document 实例
 			Document doc = doLoadDocument(inputSource, resource);
             // 根据 Document 实例，注册 Bean 信息
+			// 获取 XML Document 对象后，会根据该Document对象和 Resource 资源对象调用 registerBeanDefinitions(Document doc, Resource resource) 方法，
+			// 【开始注册 BeanDefinitions 之旅】
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -521,10 +524,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
 	    // 创建 BeanDefinitionDocumentReader 对象
+		// BeanDefinitionDocumentReader 对象定义读取 Document 并注册 BeanDefinition 功能
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 获取已注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
-		// 创建 XmlReaderContext 对象
+		// 创建 XmlReaderContext 对象, 解析器的当前上下文，包括目标注册表(XmlBeanDefinitionReader)和被解析的Resource资源。它是根据 Resource 来创建的，
 		// 注册 BeanDefinition
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		// 计算新注册的 BeanDefinition 数量
