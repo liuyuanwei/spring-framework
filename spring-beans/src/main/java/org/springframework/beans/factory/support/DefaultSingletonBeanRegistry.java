@@ -82,7 +82,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
      *
      * 存放的是早期的 bean，对应关系也是 bean name --> bean instance。
      *
-     * 它与 {@link #singletonFactories} 区别在于 earlySingletonObjects 中存放的 bean 不一定是完整。
+     * 它与 {@link #singletonObjects } 区别在于 earlySingletonObjects 中存放的 bean 不一定是完整。
      *
      * 从 {@link #getSingleton(String)} 方法中，我们可以了解，bean 在创建过程中就已经加入到 earlySingletonObjects 中了。
      * 所以当在 bean 的创建过程中，就可以通过 getBean() 方法获取。
@@ -200,26 +200,47 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
+	/*
+		总体逻辑，就是根据 beanName 依次检测这三个 Map，若为空，从下一个，否则返回。这三个 Map 存放的都有各自的功能，
+	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// 第一步，从 singletonObjects 中，获取 Bean 对象。
         // 从单例缓冲中加载 bean
 	    Object singletonObject = this.singletonObjects.get(beanName);
+	    /*
+	    	#isSingletonCurrentlyInCreation(String beanName) 方法，该方法用于判断该 beanName 对应的 Bean 是否在创建过程中，
+	    	注意这个过程讲的是整个工厂中。
+	     */
         // 缓存中的 bean 为空，且当前 bean 正在创建
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
             // 加锁
             synchronized (this.singletonObjects) {
+            	/*
+            		bean 在创建过程中就已经加入到 earlySingletonObjects 中了。
+					这个 Map 也是【循环依赖】的关键所在。
+            	 */
+            	// 第二步，若为空且当前 bean 正在创建中，则从 earlySingletonObjects 中获取 Bean 对象。
                 // 从 earlySingletonObjects 获取
                 singletonObject = this.earlySingletonObjects.get(beanName);
+
+                /*
+                	第三步，若为空【且允许提前创建】，则从 singletonFactories 中获取相应的 ObjectFactory 对象。
+                	若不为空，则调用其 ObjectFactory#getObject(String name) 方法，创建 Bean 对象，
+                	然后将其加入到 earlySingletonObjects ，然后从 singletonFactories 删除。
+                 */
                 // earlySingletonObjects 中没有，且允许提前创建
-                if (singletonObject == null && allowEarlyReference) {
+                if (singletonObject == null && allowEarlyReference) { // 目前研究传过来allowEarlyReference是true
                     // 从 singletonFactories 中获取对应的 ObjectFactory
+					// 可以理解为每个单例bean都有一个创建单例 bean 的 factory 。
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
 					    // 获得 bean
 						singletonObject = singletonFactory.getObject();
-						// 添加 bean 到 earlySingletonObjects 中
+						// 】】】添加 bean 到 earlySingletonObjects 中
+						// bean 在创建过程中就已经加入到 earlySingletonObjects 中了。
 						this.earlySingletonObjects.put(beanName, singletonObject);
-						// 从 singletonFactories 中移除对应的 ObjectFactory
+						// 】】】从 singletonFactories 中移除对应的 ObjectFactory
 						this.singletonFactories.remove(beanName);
 					}
 				}

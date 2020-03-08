@@ -40,6 +40,20 @@ import org.springframework.lang.Nullable;
  * 是一个【描述接口】，它描述了一个 Bean 实例的定义，包括属性值、构造方法值和继承自它的类的更多信息
  * 虽然接口方法比较多，但是是不是一下子和我们平时使用 <bean> 标签的属性，能够对应上落
  */
+/*
+	我们常用的三个实现类有：
+		org.springframework.beans.factory.support.ChildBeanDefinition
+		org.springframework.beans.factory.support.RootBeanDefinition
+		org.springframework.beans.factory.support.GenericBeanDefinition
+	ChildBeanDefinition、RootBeanDefinition、GenericBeanDefinition 三者都继承 AbstractBeanDefinition 抽象类，
+	即 AbstractBeanDefinition 对三个子类的共同的类信息进行抽象。
+
+	如果配置文件中定义了父 <bean> 和 子 <bean> ，
+	则父 <bean> 用 RootBeanDefinition 表示，子 <bean> 用 ChildBeanDefinition 表示，
+	而没有父 <bean> 的就使用RootBeanDefinition 表示。
+
+	GenericBeanDefinition 为一站式服务类。😈 这个解释一脸懵逼？没事，继续往下看。
+ */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**

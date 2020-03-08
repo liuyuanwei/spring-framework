@@ -45,6 +45,7 @@ import javax.xml.parsers.ParserConfigurationException;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ * 该方法由 DocumentLoader 的默认实现类
  */
 public class DefaultDocumentLoader implements DocumentLoader {
 

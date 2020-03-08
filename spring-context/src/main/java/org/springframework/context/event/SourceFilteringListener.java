@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @since 2.0.5
+ * 实现 GenericApplicationListener、SmartApplicationListener 监听器，实现将原始对象触发的事件，转发给指定监听器。
  */
 public class SourceFilteringListener implements GenericApplicationListener, SmartApplicationListener {
 

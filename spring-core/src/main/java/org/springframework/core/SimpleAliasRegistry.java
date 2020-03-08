@@ -80,9 +80,13 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				/*
+					如果 name、alias 分别为 1 和 3 ，则构成 （1,3） 的映射。加入，
+					此时集合中存在（A,1）、（3,A） 的映射，意味着出现循环指向的情况，则抛出 IllegalStateException 异常。
+				 */
                 // 校验，是否存在循环指向
 				checkForAliasCircle(name, alias);
-                // 注册 alias
+                // 】】】注册 alias
 				this.aliasMap.put(alias, name);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Alias definition '" + alias + "' registered for name '" + name + "'");
@@ -218,6 +222,11 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * Determine the raw name, resolving aliases to canonical names.
 	 * @param name the user-specified name
 	 * @return the transformed name
+	 */
+	/*
+		主要是一个循环获取 beanName 的过程，
+		例如，别名 A 指向名称为 B 的 bean 则返回 B，
+		若 别名 A 指向别名 B，别名 B 指向名称为 C 的 bean，则返回 C。
 	 */
 	public String canonicalName(String name) {
 		String canonicalName = name;

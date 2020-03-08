@@ -34,6 +34,8 @@ import java.util.Locale;
  * @see org.springframework.web.servlet.view.InternalResourceViewResolver
  * @see org.springframework.web.servlet.view.ResourceBundleViewResolver
  * @see org.springframework.web.servlet.view.XmlViewResolver
+ * 实体解析器接口，根据视图名和国际化，获得最终的视图 View 对象。
+ * ViewResolver 的实现类比较多，例如说，InternalResourceViewResolver 负责解析 JSP 视图，FreeMarkerViewResolver 负责解析 Freemarker 视图。
  */
 public interface ViewResolver {
 

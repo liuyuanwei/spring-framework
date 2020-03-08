@@ -76,11 +76,7 @@ public abstract class BeanFactoryUtils {
      * 如果 name 以 “&” 为前缀，那么会去掉该 "&" 。
      * 例如，name = "&studentService" ，则会是 name = "studentService"。
      *
-	 * Return the actual bean name, stripping out the factory dereference
-	 * prefix (if any, also stripping repeated factory prefixes if found).
-	 * @param name the name of the bean
-	 * @return the transformed name
-	 * @see BeanFactory#FACTORY_BEAN_PREFIX
+	 * 实际上，逻辑比较简单，就是去除传入 name 参数的 "&" 的前缀。
 	 */
 	public static String transformedBeanName(String name) {
 		Assert.notNull(name, "'name' must not be null");

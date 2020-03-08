@@ -45,6 +45,9 @@ import java.util.*;
  * @author Juergen Hoeller
  * @author Arjen Poutsma
  * @since 16.04.2003
+ * 基于 URL 进行匹配。
+ * 当然，实际我们开发时，这种方式已经基本不用了，被 @RequestMapping 等注解的方式所取代。
+ * 不过，Spring MVC 内置的一些路径匹配，还是使用这种方式。
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping implements MatchableHandlerMapping {
 

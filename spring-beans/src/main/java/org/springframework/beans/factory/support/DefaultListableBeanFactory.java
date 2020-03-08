@@ -848,7 +848,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		Assert.hasText(beanName, "Bean name must not be empty");
 		Assert.notNull(beanDefinition, "BeanDefinition must not be null");
 
-        // 校验 BeanDefinition 。
+        // <1> 校验 BeanDefinition 。
         // 这是注册前的最后一次校验了，主要是对属性 methodOverrides 进行校验。
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
@@ -859,9 +859,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
-        // 从缓存中获取指定 beanName 的 BeanDefinition
+        // <2> 从缓存中获取指定 beanName 的 BeanDefinition
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
-		// 如果已经存在
+		// <3> 如果已经存在
+		// 【则根据 allowBeanDefinitionOverriding 标志来判断是否允许覆盖】。如果允许则直接覆盖。
+		// 否则，抛出 BeanDefinitionStoreException 异常。
 		if (existingDefinition != null) {
             // 如果存在但是不允许覆盖，抛出异常
             if (!isAllowBeanDefinitionOverriding()) {
@@ -891,14 +893,20 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
             // 允许覆盖，直接覆盖原有的 BeanDefinition 到 beanDefinitionMap 中。
 			this.beanDefinitionMap.put(beanName, beanDefinition);
-        // 如果未存在
+        /*
+            若缓存中没有指定 beanName 的 BeanDefinition，
+            则判断当前阶段是否已经开始了 Bean 的创建阶段？
+            如果是，则需要对 beanDefinitionMap 进行加锁控制并发问题，
+            否则直接设置即可。
+        */
+        // <4> 如果未存在
 		} else {
             // 检测创建 Bean 阶段是否已经开启，如果开启了则需要对 beanDefinitionMap 进行并发控制
 			if (hasBeanCreationStarted()) {
                 // beanDefinitionMap 为全局变量，避免并发情况
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
-				    // 添加到 BeanDefinition 到 beanDefinitionMap 中。
+				    // 】】】添加到 BeanDefinition 到 beanDefinitionMap 中。
 					this.beanDefinitionMap.put(beanName, beanDefinition);
                     // 添加 beanName 到 beanDefinitionNames 中
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
@@ -914,7 +922,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			} else {
 				// Still in startup registration phase
-                // 添加到 BeanDefinition 到 beanDefinitionMap 中。
+                // 】】】添加到 BeanDefinition 到 beanDefinitionMap 中。
                 this.beanDefinitionMap.put(beanName, beanDefinition);
                 // 添加 beanName 到 beanDefinitionNames 中
 				this.beanDefinitionNames.add(beanName);
@@ -925,7 +933,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			this.frozenBeanDefinitionNames = null;
 		}
 
-        // 重新设置 beanName 对应的缓存
+		/*
+			若缓存中存在该 beanName 或者单例 bean 集合中存在该 beanName ，
+			则调用 #resetBeanDefinition(String beanName) 方法，重置 BeanDefinition 缓存。
+		 */
+        // <5>重新设置 beanName 对应的缓存
 		if (existingDefinition != null || containsSingleton(beanName)) {
 			resetBeanDefinition(beanName);
 		}

@@ -46,6 +46,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author Juergen Hoeller
  * @see org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter
  * @see org.springframework.web.servlet.handler.SimpleServletHandlerAdapter
+ * 处理器适配器接口
+ * 因为，处理器 handler 的类型是 Object 类型，需要有一个调用者【来实现 handler 是怎么被使用，怎么被执行。】
+ * 而 HandlerAdapter 的用途就在于此。
  */
 public interface HandlerAdapter {
 

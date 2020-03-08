@@ -61,12 +61,16 @@ import java.util.Map;
  * @see org.springframework.util.AntPathMatcher
  * @see #setInterceptors
  * @see org.springframework.web.servlet.HandlerInterceptor
+ * 实现 HandlerMapping、Ordered、BeanNameAware 接口，继承 WebApplicationObjectSupport 抽象类
+ * 实现了【获得请求对应的处理器和拦截器们】的骨架逻辑
+ * 而暴露 #getHandlerInternal(HttpServletRequest request) 抽象方法，交由子类实现。这就是我们常说的“模板方法模式” 。
+ *
  */
 public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		implements HandlerMapping, Ordered, BeanNameAware {
 
     /**
-     * 默认处理器
+     * 默认处理器。在获得不到处理器时，可使用该属性。
      */
 	@Nullable
 	private Object defaultHandler;
@@ -94,7 +98,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	private final List<Object> interceptors = new ArrayList<>();
 
     /**
-     * 初始化后的拦截器 HandlerInterceptor 数组
+     * 】】】初始化后的拦截器 HandlerInterceptor 数组
      */
 	private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<>();
 
@@ -312,14 +316,24 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * Initializes the interceptors.
 	 * @see #extendInterceptors(java.util.List)
 	 * @see #initInterceptors()
+	 * 重写来自ApplicationObjectSupport
+	 * 该方法，是对 WebApplicationObjectSupport 的覆写，
+	 * 而 WebApplicationObjectSupport 的集成关系是 WebApplicationObjectSupport => ApplicationObjectSupport => ApplicationContextAware 。
 	 */
 	@Override
 	protected void initApplicationContext() throws BeansException {
-	    // 空方法。交给子类实现，用于注册自定义的拦截器到 interceptors 中。目前暂无子类实现。
+	    // <1> 空方法。交给子类实现，用于注册自定义的拦截器到 interceptors 中。
+		// 【目前暂无子类实现】。
 		extendInterceptors(this.interceptors);
-		// 扫描已注册的 MappedInterceptor 的 Bean 们，添加到 mappedInterceptors 中
+
+		/*
+			为什么会扫描 MappedInterceptor 的 Bean 们？详细解析
+			<mvc:interceptors /> 标签」
+
+		 */
+		// <2> 【扫描已注册的 MappedInterceptor 的 Bean 们】，添加到 mappedInterceptors 中
 		detectMappedInterceptors(this.adaptedInterceptors);
-		// 将 interceptors 初始化成 HandlerInterceptor 类型，添加到 mappedInterceptors 中
+		// <3> 将 【interceptors】 初始化成 HandlerInterceptor 类型，添加到【adaptedInterceptors】（mappedInterceptors） 中
 		initInterceptors();
 	}
 
@@ -350,6 +364,11 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		mappedInterceptors.addAll(
 				BeanFactoryUtils.beansOfTypeIncludingAncestors(
 						obtainApplicationContext(), MappedInterceptor.class, true, false).values());
+
+		/*
+			调用 BeanFactoryUtils#beansOfTypeIncludingAncestors(ListableBeanFactory lbf, Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) 方法，
+			扫描已注册的 MappedInterceptor 的 Bean 们，然后添加到 mappedInterceptors 中。
+		 */
 	}
 
 	/**
@@ -439,24 +458,26 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
-	    // 获得处理器。该方法是抽象方法，由子类实现
+	    // <1> 获得处理器。该方法是抽象方法，由子类实现
 		Object handler = getHandlerInternal(request);
-		// 获得不到，则使用默认处理器
+		// <2> 获得不到，则使用默认处理器
+		// 【实际上，我们一般不太会设置默认处理器。】
 		if (handler == null) {
 			handler = getDefaultHandler();
 		}
-		// 还是获得不到，则返回 null
+		// <3> 还是获得不到，则返回 null
 		if (handler == null) {
 			return null;
 		}
 		// Bean name or resolved handler?
-        // 如果找到的处理器是 String 类型，则从容器中找到 String 对应的 Bean 类型作为处理器。
+        // <4> 如果找到的处理器是 String 类型，则从容器中找到 String 对应的 Bean 类型作为处理器。
+		// 则调用 BeanFactory#getBean(String name) 方法，从容器中找到 String 对应的 Bean 类型作为处理器。
 		if (handler instanceof String) {
 			String handlerName = (String) handler;
 			handler = obtainApplicationContext().getBean(handlerName);
 		}
 
-		// 获得 HandlerExecutionChain 对象
+		// <5> 获得 HandlerExecutionChain 对象
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
 		// 打印日志
@@ -467,7 +488,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			logger.debug("Mapped to " + executionChain.getHandler());
 		}
 
-		// TODO 芋艿 cors
+		// <6> TODO 芋艿 cors
 		if (CorsUtils.isCorsRequest(request)) {
 			CorsConfiguration globalConfig = this.corsConfigurationSource.getCorsConfiguration(request);
 			CorsConfiguration handlerConfig = getCorsConfiguration(handler, request);

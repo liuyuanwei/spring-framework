@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ * 请求到视图名的转换器接口
  */
 public interface RequestToViewNameTranslator {
 

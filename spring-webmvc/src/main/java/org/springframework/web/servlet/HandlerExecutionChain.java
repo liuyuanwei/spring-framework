@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 处理器执行链
+ *
  *
  * Handler execution chain, consisting of handler object and any handler interceptors.
  * Returned by HandlerMapping's {@link HandlerMapping#getHandler} method.
@@ -36,6 +36,7 @@ import java.util.List;
  * @author Juergen Hoeller
  * @since 20.06.2003
  * @see HandlerInterceptor
+ * 处理器执行链 责任链模式
  */
 public class HandlerExecutionChain {
 
@@ -43,6 +44,7 @@ public class HandlerExecutionChain {
 
     /**
      * 处理器
+	 * 】】】注意，处理器的类型可能和我们想的不太一样，是个 Object 类型。
      */
 	private final Object handler;
     /**
@@ -52,7 +54,7 @@ public class HandlerExecutionChain {
 	private HandlerInterceptor[] interceptors;
     /**
      * 拦截器数组。
-     *
+     *	{@link HandlerExecutionChain#addInterceptors(org.springframework.web.servlet.HandlerInterceptor...)}，添加拦截器到 interceptorList 中
      * 在实际使用时，会调用 {@link #getInterceptors()} 方法，初始化到 {@link #interceptors} 中
      */
 	@Nullable
@@ -100,10 +102,19 @@ public class HandlerExecutionChain {
 		return this.handler;
 	}
 
+	/**
+	 * 添加拦截器到 interceptorList 中
+	 * @param interceptor
+	 */
 	public void addInterceptor(HandlerInterceptor interceptor) {
+		// 首先，会调用 #initInterceptorList() 方法，保证 interceptorList 已初始化。
 		initInterceptorList().add(interceptor);
 	}
 
+	/**
+	 * 添加拦截器们到 interceptorList 中。
+	 * @param interceptors
+	 */
 	public void addInterceptors(HandlerInterceptor... interceptors) {
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			CollectionUtils.mergeArrayIntoCollection(interceptors, initInterceptorList());
@@ -129,6 +140,7 @@ public class HandlerExecutionChain {
 	/**
 	 * Return the array of interceptors to apply (in the given order).
 	 * @return the array of HandlerInterceptors instances (may be {@code null})
+	 * 获得 interceptors 数组。
 	 */
 	@Nullable
 	public HandlerInterceptor[] getInterceptors() {
@@ -155,6 +167,13 @@ public class HandlerExecutionChain {
 		    // 遍历拦截器数组
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
+
+				/*
+					preHandle(..)方法返回一个boolean值。你可以使用这个方法去打断或者继续这个执行链的处理。
+					当这个方法返回true，这个handler执行链将继续。
+					返回fasle，DispatcherServlet假定当前拦截器已经处理了请求(比如，返回了一个合适的视图)并且不再继续执行其他的拦截器和处理执行链中的实际的handler。
+					（但是还是会执行afterCompletion方法）。
+				 */
 				// 前置处理
 				if (!interceptor.preHandle(request, response, this.handler)) {
 				    // 触发已完成处理

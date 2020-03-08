@@ -310,7 +310,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	@Override
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
-		// 这里为什么需要将 Resource 封装成 EncodedResource 呢？主要是为了对 Resource 进行编码，保证内容读取的正确性。
+		// 这里为什么需要将 Resource 封装成 EncodedResource 呢？
+		// 【主要是为了对 Resource 进行编码，保证内容读取的正确性】。
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
 
@@ -327,7 +328,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
 
+		/*
+			为什么需要这么做呢？
+				答案在 "Detected cyclic loading" ，
+				避免一个 EncodedResource 在加载时，还没加载完成，又加载自身，从而导致死循环。
+		 */
         // 获取已经加载过的资源
+		// 然后将 encodedResource 加入其中，如果 resourcesCurrentlyBeingLoaded 中已经存在该资源，则抛出 BeanDefinitionStoreException 异常。
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
@@ -441,6 +448,16 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
 		return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
 				getValidationModeForResource(resource), isNamespaceAware());
+
+		/*
+			调用 #getValidationModeForResource(Resource resource) 方法，
+			获取指定资源（xml）的验证模式。详细解析，见 《【死磕 Spring】—— IoC 之获取验证模型》 。
+
+			调用 DocumentLoader#loadDocument(InputSource inputSource, EntityResolver entityResolver, ErrorHandler errorHandler, int validationMode, boolean namespaceAware) 方法，
+			获取 XML Document 实例。详细解析，见 《【死磕 Spring】—— IoC 之获取 Document 对象》 。
+
+			getEntityResolver() 方法，返回指定的解析器，如果没有指定，则构造一个未指定的默认解析器。
+		 */
 	}
 
 	/**
@@ -523,13 +540,21 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
-	    // 创建 BeanDefinitionDocumentReader 对象
+	    // 创建 BeanDefinitionDocumentReader 对象，BeanDefinitionDocumentReader 有且只有一个默认实现类 DefaultBeanDefinitionDocumentReader
 		// BeanDefinitionDocumentReader 对象定义读取 Document 并注册 BeanDefinition 功能
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 获取已注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
-		// 创建 XmlReaderContext 对象, 解析器的当前上下文，包括目标注册表(XmlBeanDefinitionReader)和被解析的Resource资源。它是根据 Resource 来创建的，
-		// 注册 BeanDefinition
+		/*
+			创建 XmlReaderContext 对象, 解析器的当前上下文，
+			包括目标注册表(XmlBeanDefinitionReader)和被解析的Resource资源。它是根据 Resource 来创建的，
+		 */
+		/*
+			从给定的 Document 对象中解析定义的 BeanDefinition 并将他们注册到注册表中。方法接收两个参数：
+				doc 方法参数：待解析的 Document 对象。
+				readerContext 方法，解析器的当前上下文，包括目标注册表和被解析的资源。它是根据 Resource 来创建的
+		 */
+		// 】】】注册 BeanDefinition们
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		// 计算新注册的 BeanDefinition 数量
 		return getRegistry().getBeanDefinitionCount() - countBefore;
@@ -542,6 +567,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #setDocumentReaderClass
 	 */
 	protected BeanDefinitionDocumentReader createBeanDefinitionDocumentReader() {
+		// documentReaderClass 的默认值为 DefaultBeanDefinitionDocumentReader.class 。
 		return BeanUtils.instantiateClass(this.documentReaderClass);
 	}
 

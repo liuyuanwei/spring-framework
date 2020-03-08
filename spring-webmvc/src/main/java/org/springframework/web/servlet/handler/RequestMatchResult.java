@@ -30,6 +30,8 @@ import java.util.Map;
  *
  * @author Rossen Stoyanchev
  * @since 4.3.1
+ * 请求匹配结果。
+ *
  */
 public class RequestMatchResult {
 

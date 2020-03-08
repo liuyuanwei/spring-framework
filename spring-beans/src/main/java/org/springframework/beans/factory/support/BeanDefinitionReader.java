@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 1.1
  * @see org.springframework.core.io.Resource
+ * 作用是读取 Spring 的配置文件的内容，【并将其转换成 Ioc 容器内部的数据结构 ：BeanDefinition 】。
  */
 public interface BeanDefinitionReader {
 

@@ -387,20 +387,20 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
-        // 解析 id 和 name 属性
+        // <1> 解析 id 和 name 属性
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
-		// 计算别名集合
+		// <1> 计算别名集合
 		List<String> aliases = new ArrayList<>();
 		if (StringUtils.hasLength(nameAttr)) {
 			String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
 			aliases.addAll(Arrays.asList(nameArr));
 		}
 
-		// beanName ，优先，使用 id
+		// <3.1>beanName ，优先，使用 id
 		String beanName = id;
-		// beanName ，其次，使用 aliases 的第一个
+		// <3.2> beanName ，其次，使用 aliases 的第一个
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 			beanName = aliases.remove(0); // 移除出别名集合
 			if (logger.isTraceEnabled()) {
@@ -409,23 +409,24 @@ public class BeanDefinitionParserDelegate {
 			}
 		}
 
-        // 检查 beanName 的唯一性
+        // <2> 检查 beanName 的唯一性
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
-        // 解析属性，构造 AbstractBeanDefinition 对象
+        // <4> 解析属性，构造 AbstractBeanDefinition 对象
+		// 对属性进行解析并封装成 AbstractBeanDefinition 实例 beanDefinition
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
-		    // beanName还是为空，使用 默认规则生产默认的beanName
+		    // <3.3> beanName还是为空，使用 默认规则生产默认的beanName
 			if (!StringUtils.hasText(beanName)) {
 				try {
 					if (containingBean != null) {
-					    // 生成唯一的 beanName
+					    // <3.3> 生成唯一的 beanName
 						beanName = BeanDefinitionReaderUtils.generateBeanName(
 								beanDefinition, this.readerContext.getRegistry(), true);
 					} else {
-                        // 生成唯一的 beanName
+                        // <3.3> 生成唯一的 beanName
 						beanName = this.readerContext.generateBeanName(beanDefinition);
                         // TODO 芋艿，需要进一步确认
 						// Register an alias for the plain bean class name, if still possible,
@@ -447,7 +448,7 @@ public class BeanDefinitionParserDelegate {
 					return null;
 				}
 			}
-            // 创建 BeanDefinitionHolder 对象
+            // <5> 创建 BeanDefinitionHolder 对象
 			String[] aliasesArray = StringUtils.toStringArray(aliases);
 			return new BeanDefinitionHolder(beanDefinition, beanName, aliasesArray);
 		}
@@ -499,11 +500,15 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
-            // 创建用于承载属性的 AbstractBeanDefinition 实例
+			/*
+				createBeanDefinition
+					该方法主要是，创建 GenericBeanDefinition 对象，并设置 parentName、className、beanClass 属性。
+			 */
+            // 】】】创建用于承载属性的 AbstractBeanDefinition 实例
 			// ！！！委托 BeanDefinitionReaderUtils 创建AbstractBeanDefinition对象
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
-            // 解析默认 bean 的各种属性
+            // 解析默认 bean 的各种属性（如：scope、lazy-init等）
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
             // 提取 description
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
@@ -511,7 +516,6 @@ public class BeanDefinitionParserDelegate {
             // tips：
             // 下面的一堆是解析 <bean>......</bean> 内部的子元素，
             // 解析出来以后的信息都放到 bd 的属性中
-
             // 解析元数据 <meta />
 			parseMetaElements(ele, bd);
             // 解析 lookup-method 属性 <lookup-method />

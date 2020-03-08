@@ -54,6 +54,14 @@ import org.springframework.lang.Nullable;
  * @see ConfigurableApplicationContext
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.core.io.ResourceLoader
+ * 这个就是大名鼎鼎的 Spring 容器，它叫做应用上下文，与我们应用息息相关。
+ * 【它继承 BeanFactory ，所以它是 BeanFactory 的扩展升级版】，如果BeanFactory 是屌丝的话，那么 ApplicationContext 则是名副其实的高富帅。
+ *
+ * 由于 ApplicationContext 的结构就决定了它与 BeanFactory 的不同，其主要区别有：
+ * 		继承 org.springframework.context.MessageSource 接口，提供国际化的标准访问策略。
+ * 		继承 org.springframework.context.ApplicationEventPublisher 接口，提供强大的事件机制。
+ * 		扩展 ResourceLoader ，可以用来加载多种 Resource ，可以灵活访问不同的资源。
+ * 		对 Web 应用的支持。
  */
 public interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory,
 		MessageSource, ApplicationEventPublisher, ResourcePatternResolver {

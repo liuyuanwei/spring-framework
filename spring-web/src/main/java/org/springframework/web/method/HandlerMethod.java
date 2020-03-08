@@ -53,6 +53,8 @@ import java.util.List;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 3.1
+ * 对处理器的方法 进行封装的类
+ * 实际上，HandlerMethod 是 handler + method 的组合，一个对象的某个方法。
  */
 public class HandlerMethod {
 
@@ -163,21 +165,21 @@ public class HandlerMethod {
 		Assert.hasText(beanName, "Bean name is required");
 		Assert.notNull(beanFactory, "BeanFactory is required");
 		Assert.notNull(method, "Method is required");
-		// 将 beanName 赋值给 bean 属性，说明 beanFactory + bean 的方式，获得 handler 对象
+		// <1> 将 beanName 赋值给 bean 属性，说明 beanFactory + bean 的方式，获得 handler 对象
 		this.bean = beanName;
 		this.beanFactory = beanFactory;
-		// 初始化 beanType 属性
+		// <2> 初始化 beanType 属性
 		Class<?> beanType = beanFactory.getType(beanName);
 		if (beanType == null) {
 			throw new IllegalStateException("Cannot resolve bean type for bean with name '" + beanName + "'");
 		}
 		this.beanType = ClassUtils.getUserClass(beanType);
-		// 初始化 method、bridgedMethod 属性
+		// <3>初始化 method、bridgedMethod 属性
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
-		// 初始化 parameters 属性
+		// <4> 初始化 parameters 属性
 		this.parameters = initMethodParameters();
-		// 初始化 responseStatus、responseStatusReason 属性
+		//<5>  初始化 responseStatus、responseStatusReason 属性
 		evaluateResponseStatus();
 	}
 

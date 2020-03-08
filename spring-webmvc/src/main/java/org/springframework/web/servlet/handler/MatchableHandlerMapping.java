@@ -29,11 +29,14 @@ import javax.servlet.http.HttpServletRequest;
  * @author Rossen Stoyanchev
  * @since 4.3.1
  * @see HandlerMappingIntrospector
+ * 定义判断请求和指定 pattern 路径是否匹配的接口方法
+ * 目前实现 MatchableHandlerMapping 接口的类，有 RequestMappingHandlerMapping 类和 AbstractUrlHandlerMapping 抽象类。
  */
 public interface MatchableHandlerMapping extends HandlerMapping {
 
 	/**
      * 判断请求和指定 `pattern` 路径是否匹配的接口方法
+	 * 返回：请求匹配结果。
      *
 	 * Determine whether the given request matches the request criteria.
 	 * @param request the current request
