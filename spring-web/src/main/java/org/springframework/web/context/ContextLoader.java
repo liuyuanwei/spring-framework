@@ -373,6 +373,12 @@ public class ContextLoader {
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
 	 */
 	/*
+		从 ContextLoader.properties 中，读取默认的配置 Properties 对象。
+		实际上，这是一个应用开发者无需关心的配置，而是 Spring 框架自身所定义的。打开来瞅瞅，
+		这意味着什么呢？如果我们没有在 <context-param /> 标签中，【配置指定的 WebApplicationContext 类型】，
+		【就使用 XmlWebApplicationContext 类】。😈 【一般情况下，我们也不会主动指定】
+	 */
+	/*
 		分成两种情况。前者，从 ServletContext 配置的 context 类；后者，从 ContextLoader.properties 配置的 context 类。
 		默认情况下，我们不会主动在 ServletContext 配置的 context 类，
 		【所以基本是使用 ContextLoader.properties 配置的 context 类，即 XmlWebApplicationContext 类】。

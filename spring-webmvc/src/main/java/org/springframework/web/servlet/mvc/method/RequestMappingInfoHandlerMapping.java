@@ -46,6 +46,14 @@ import java.util.*;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @since 3.1
+ * 继承 AbstractHandlerMethodMapping 抽象类，
+ * 定义了使用的泛型 <T> 为 RequestMappingInfo 类，【即 Mapping 类型就是 RequestMappingInfo】 。
+ */
+/*
+	这样有什么好处呢？
+	RequestMappingInfoHandlerMapping 定义了使用了 RequestMappingInfo 对象，
+	而 其子类 RequestMappingHandlerMapping 使用了 @RequestMapping 注解，来生成 RequestMappingInfo 对象。
+	这样，如果未来我们自己定义了自己的注解，或者其他方式来生成 RequestMappingInfo 对象，未尝不可。关于这点，胖友可以再仔细思考下。
  */
 public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> {
 
@@ -60,6 +68,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		}
 	}
 
+	// 设置了 AbstractHandlerMethodMapping.namingStrategy 属性，为 RequestMappingInfoHandlerMethodMappingNamingStrategy 对象。
 	protected RequestMappingInfoHandlerMapping() {
 		setHandlerMethodMappingNamingStrategy(new RequestMappingInfoHandlerMethodMappingNamingStrategy());
 	}
