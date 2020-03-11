@@ -39,6 +39,11 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @since 03.11.2003
+ *
+ * ConfigurableApplicationContext 接口提供的方法都是对 ApplicationContext 进行配置的
+ *
+ * Lifecycle：对 context 生命周期的管理，它提供 #start() 和 #stop() 方法启动和暂停组件。
+ * Closeable：标准 JDK 所提供的一个接口，用于最后关闭组件释放资源等。
  */
 public interface ConfigurableApplicationContext extends ApplicationContext, Lifecycle, Closeable {
 

@@ -59,6 +59,8 @@ import org.springframework.core.io.ResourceLoader;
  * ResourcePatternResolver 在 ResourceLoader 的基础上增加了 #getResources(String locationPattern) 方法，以支持根据路径匹配模式返回多个 Resource 实例。
  * Resource[] getResources(String locationPattern) throws IOException;
  * 同时，【也新增了一种新的协议前缀 "classpath*:"，该协议前缀由其子类负责实现。】
+ *
+ * 如果小伙伴对 Spring 的 ResourceLoader 比较熟悉的话，你会发现最终是在 PathMatchingResourcePatternResolver 中实现，该类是 ResourcePatternResolver 接口的实现者。
  */
 public interface ResourcePatternResolver extends ResourceLoader {
 
