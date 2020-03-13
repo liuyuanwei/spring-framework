@@ -32,16 +32,19 @@ import org.springframework.lang.Nullable;
  * @since 3.0
  * @see GenericApplicationListener
  * @see GenericApplicationListenerAdapter
+ * 实现 ApplicationListener、Ordered 接口，是 Spring3.0 新增的接口，提供了事件类型和来源的判断接口方法。
  */
 public interface SmartApplicationListener extends ApplicationListener<ApplicationEvent>, Ordered {
 
 	/**
+	 * 事件类型
 	 * Determine whether this listener actually supports the given event type.
 	 * @param eventType the event type (never {@code null})
 	 */
 	boolean supportsEventType(Class<? extends ApplicationEvent> eventType);
 
 	/**
+	 * 事件来源
 	 * Determine whether this listener actually supports the given source type.
 	 * <p>The default implementation always returns {@code true}.
 	 * @param sourceType the source type, or {@code null} if no source

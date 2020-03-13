@@ -46,12 +46,13 @@ import java.util.*;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 3.2
+ * 加载 spring.factories 的工具类
  */
 public final class SpringFactoriesLoader {
 
-	/**
-	 * The location to look for factories.
-	 * <p>Can be present in multiple JAR files.
+	/*
+		FACTORIES_RESOURCE_LOCATION 静态属性，定义了读取的是 "META-INF/spring.factories" 配置文件。
+		】】】并且，每个 JAR 文件里，都可以有一个这个配置文件。
 	 */
 	public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
 
@@ -70,16 +71,8 @@ public final class SpringFactoriesLoader {
 	}
 
 	/**
-	 * Load and instantiate the factory implementations of the given type from
-	 * {@value #FACTORIES_RESOURCE_LOCATION}, using the given class loader.
-	 * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
-	 * <p>If a custom instantiation strategy is required, use {@link #loadFactoryNames}
-	 * to obtain all registered factory names.
-	 * @param factoryClass the interface or abstract class representing the factory
-	 * @param classLoader the ClassLoader to use for loading (can be {@code null} to use the default)
-	 * @throws IllegalArgumentException if any factory implementation class cannot
-	 * be loaded or if an error occurs while instantiating any factory
-	 * @see #loadFactoryNames
+	 * 获得接口对应的实现类名们，
+	 * 】】】然后创建对应的对象们。
 	 */
 	public static <T> List<T> loadFactories(Class<T> factoryClass, @Nullable ClassLoader classLoader) {
 		Assert.notNull(factoryClass, "'factoryClass' must not be null");
@@ -104,14 +97,7 @@ public final class SpringFactoriesLoader {
 	}
 
 	/**
-	 * Load the fully qualified class names of factory implementations of the
-	 * given type from {@value #FACTORIES_RESOURCE_LOCATION}, using the given
-	 * class loader.
-	 * @param factoryClass the interface or abstract class representing the factory
-	 * @param classLoader the ClassLoader to use for loading resources; can be
-	 * {@code null} to use the default
-	 * @throws IllegalArgumentException if an error occurs while loading factory names
-	 * @see #loadFactories
+	 * 获得接口对应的实现类名们
 	 */
 	public static List<String> loadFactoryNames(Class<?> factoryClass, @Nullable ClassLoader classLoader) {
 		// 获得接口的类名
@@ -121,14 +107,14 @@ public final class SpringFactoriesLoader {
 	}
 
 	private static Map<String, List<String>> loadSpringFactories(@Nullable ClassLoader classLoader) {
-		// 如果缓存中已经存在，则直接返回
+		// 】】】如果缓存中已经存在，则直接返回
 	    MultiValueMap<String, String> result = cache.get(classLoader);
 		if (result != null) {
 			return result;
 		}
 
 		try {
-		    // 获得 FACTORIES_RESOURCE_LOCATION 对应的 URL 们
+		    // 】】】获得 FACTORIES_RESOURCE_LOCATION 对应的 URL 们
 			Enumeration<URL> urls = (classLoader != null ? classLoader.getResources(FACTORIES_RESOURCE_LOCATION) : ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
 			// 创建 LinkedMultiValueMap 对象
 			result = new LinkedMultiValueMap<>();
@@ -148,7 +134,7 @@ public final class SpringFactoriesLoader {
 					result.addAll((String) entry.getKey(), factoryClassNames);
 				}
 			}
-			// 添加到 cache 中
+			// 】】】添加到 cache 中
 			cache.put(classLoader, result);
 			return result;
 		} catch (IOException ex) {

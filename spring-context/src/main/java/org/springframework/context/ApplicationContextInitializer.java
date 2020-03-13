@@ -38,6 +38,13 @@ package org.springframework.context;
  * @see org.springframework.web.context.ContextLoader#CONTEXT_INITIALIZER_CLASSES_PARAM
  * @see org.springframework.web.servlet.FrameworkServlet#setContextInitializerClasses
  * @see org.springframework.web.servlet.FrameworkServlet#applyInitializers
+ * ApplicationContextInitializer 是一个回调接口，
+ * 用于 Spring ConfigurableApplicationContext 容器执行 #refresh() 方法进行初始化之前，提前走一些自定义的初始化逻辑。
+ */
+/*
+	【场景】它的使用场景，例如说 Web 应用中需要注册属性，或者激活 Profiles 。
+	4、【排序】它支持 Spring 的 Ordered 接口、@Order 注解，来对多个 ApplicationContextInitializer 实例进行排序，
+	从而实现，ApplicationContextInitializer 按照顺序调用 #initialize(C applicationContext) 方法，进行初始化。
  */
 public interface ApplicationContextInitializer<C extends ConfigurableApplicationContext> {
 
