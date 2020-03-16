@@ -42,41 +42,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Performs the actual initialization work for the root application context.
- * Called by {@link ContextLoaderListener}.
- *
- * <p>Looks for a {@link #CONTEXT_CLASS_PARAM "contextClass"} parameter at the
- * {@code web.xml} context-param level to specify the context class type, falling
- * back to {@link org.springframework.web.context.support.XmlWebApplicationContext}
- * if not found. With the default ContextLoader implementation, any context class
- * specified needs to implement the {@link ConfigurableWebApplicationContext} interface.
- *
- * <p>Processes a {@link #CONFIG_LOCATION_PARAM "contextConfigLocation"} context-param
- * and passes its value to the context instance, parsing it into potentially multiple
- * file paths which can be separated by any number of commas and spaces, e.g.
- * "WEB-INF/applicationContext1.xml, WEB-INF/applicationContext2.xml".
- * Ant-style path patterns are supported as well, e.g.
- * "WEB-INF/*Context.xml,WEB-INF/spring*.xml" or "WEB-INF/&#42;&#42;/*Context.xml".
- * If not explicitly specified, the context implementation is supposed to use a
- * default location (with XmlWebApplicationContext: "/WEB-INF/applicationContext.xml").
- *
- * <p>Note: In case of multiple config locations, later bean definitions will
- * override ones defined in previously loaded files, at least when using one of
- * Spring's default ApplicationContext implementations. This can be leveraged
- * to deliberately override certain bean definitions via an extra XML file.
- *
- * <p>Above and beyond loading the root application context, this class can optionally
- * load or obtain and hook up a shared parent context to the root application context.
- * See the {@link #loadParentContext(ServletContext)} method for more information.
- *
- * <p>As of Spring 3.1, {@code ContextLoader} supports injecting the root web
- * application context via the {@link #ContextLoader(WebApplicationContext)}
- * constructor, allowing for programmatic configuration in Servlet 3.0+ environments.
- * See {@link org.springframework.web.WebApplicationInitializer} for usage examples.
- *
- * @author Juergen Hoeller
- * @author Colin Sampaleanu
- * @author Sam Brannen
  * @since 17.02.2003
  * @see ContextLoaderListener
  * @see ConfigurableWebApplicationContext
@@ -85,50 +50,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ContextLoader {
 
-	/**
-	 * Config param for the root WebApplicationContext id,
-	 * to be used as serialization id for the underlying BeanFactory: {@value}.
-	 */
+
 	public static final String CONTEXT_ID_PARAM = "contextId";
 
-	/**
-	 * Name of servlet context parameter (i.e., {@value}) that can specify the
-	 * config location for the root context, falling back to the implementation's
-	 * default otherwise.
-	 * @see org.springframework.web.context.support.XmlWebApplicationContext#DEFAULT_CONFIG_LOCATION
-	 */
 	public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
 
-	/**
-	 * Config param for the root WebApplicationContext implementation class to use: {@value}.
-	 * @see #determineContextClass(ServletContext)
-	 */
 	public static final String CONTEXT_CLASS_PARAM = "contextClass";
 
-	/**
-	 * Config param for {@link ApplicationContextInitializer} classes to use
-	 * for initializing the root web application context: {@value}.
-	 * @see #customizeContext(ServletContext, ConfigurableWebApplicationContext)
-	 */
 	public static final String CONTEXT_INITIALIZER_CLASSES_PARAM = "contextInitializerClasses";
 
-	/**
-	 * Config param for global {@link ApplicationContextInitializer} classes to use
-	 * for initializing all web application contexts in the current application: {@value}.
-	 * @see #customizeContext(ServletContext, ConfigurableWebApplicationContext)
-	 */
 	public static final String GLOBAL_INITIALIZER_CLASSES_PARAM = "globalInitializerClasses";
 
-	/**
-	 * Any number of these characters are considered delimiters between
-	 * multiple values in a single init-param String value.
-	 */
 	private static final String INIT_PARAM_DELIMITERS = ",; \t\n";
 
-	/**
-	 * Name of the class path resource (relative to the ContextLoader class)
-	 * that defines ContextLoader's default strategy names.
-	 */
 	private static final String DEFAULT_STRATEGIES_PATH = "ContextLoader.properties";
 
     /**
@@ -285,8 +219,7 @@ public class ContextLoader {
 		long startTime = System.currentTimeMillis();
 
 		try {
-			// Store context in local instance variable, to guarantee that
-			// it is available on ServletContext shutdown.
+			// 如果为空，创建，否则不创建
 			if (this.context == null) {
 			    //  3.初始化 context ，即创建 context 对象
 				this.context = createWebApplicationContext(servletContext);
@@ -384,7 +317,7 @@ public class ContextLoader {
 		【所以基本是使用 ContextLoader.properties 配置的 context 类，即 XmlWebApplicationContext 类】。
 	 */
 	protected Class<?> determineContextClass(ServletContext servletContext) {
-	    // 获得参数 contextClass 的值
+	    // 获得参数 contextClass 的值，在web.xml中配置
 		String contextClassName = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
 		// 情况一，如果值非空，则获得该类
 		if (contextClassName != null) {
@@ -410,9 +343,7 @@ public class ContextLoader {
 	protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac, ServletContext sc) {
         // 如果 wac 使用了默认编号，则重新设置 id 属性
         if (ObjectUtils.identityToString(wac).equals(wac.getId())) {
-			// The application context id is still set to its original default value
-			// -> assign a more useful id based on available information
-            // 情况一，使用 contextId 属性
+            // 情况一，使用 contextId 属性。在web.xml中配置
             String idParam = sc.getInitParameter(CONTEXT_ID_PARAM);
 			if (idParam != null) {
 				wac.setId(idParam);
@@ -452,7 +383,7 @@ public class ContextLoader {
 		// TODO 芋艿，暂时忽略 执行自定义初始化 context
 		customizeContext(sc, wac);
 
-		// 】】】刷新 context ，执行初始化。
+		// 】】】刷新 context ，执行初始化。【加载、注册、初始化】
 		// 此处，就会进行一些的 Spring 容器的初始化。
 		wac.refresh();
 	}

@@ -50,6 +50,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 3.1
  * @param <T> the mapping for a {@link HandlerMethod} containing the conditions
  * needed to match the handler method to incoming request.
+ * 】】】基于 Method 进行匹配
  * 实现 InitializingBean 接口，继承 AbstractHandlerMapping 抽象类
  * 【以 Method 作为 Handler 的 HandlerMapping 抽象类】，提供 Mapping 的初始化、注册等通用的骨架方法。这就是我们常说的“模板方法模式” 。
  * 基于 Method 进行匹配。例如，我们所熟知的 @RequestMapping 等注解的方式

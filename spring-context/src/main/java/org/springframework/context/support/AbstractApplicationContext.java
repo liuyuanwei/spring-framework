@@ -630,8 +630,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// 添加 BeanFactory 的属性编辑器 ResourceEditorRegistrar 对象
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
-		// Configure the bean factory with context callbacks.
+		// 我们来分析一下 setApplicationContext 调用时机，首先该方法来自 ApplicationContextAware，该方法是在 ApplicationContextAwareProcessor.invokeAwareInterfaces 被调用。
+		// https://www.liangzl.com/get-article-detail-5694.html
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this)); // TODO 芋艿，后续补充下博客
+
         // 设置几个忽略自动装配的接口 TODO
         beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);

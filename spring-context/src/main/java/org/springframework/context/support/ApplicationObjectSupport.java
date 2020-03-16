@@ -59,7 +59,10 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
 	@Nullable
 	private MessageSourceAccessor messageSourceAccessor;
 
-
+	/*
+		我们来分析一下 setApplicationContext 调用时机，首先该方法来自 ApplicationContextAware，
+		该方法是在 ApplicationContextAwareProcessor.invokeAwareInterfaces 被调用。
+	 */
 	@Override
 	public final void setApplicationContext(@Nullable ApplicationContext context) throws BeansException {
 		if (context == null && !isContextRequired()) {
@@ -73,8 +76,10 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
 				throw new ApplicationContextException(
 						"Invalid application context: needs to be of type [" + requiredContextClass().getName() + "]");
 			}
+			// 赋值，用于判断是否重复初始化（及父子容器初始化，该方法也只会执行一次）
 			this.applicationContext = context;
 			this.messageSourceAccessor = new MessageSourceAccessor(context);
+			// 】】】扩展点
 			initApplicationContext(context);
 		}
 		else {

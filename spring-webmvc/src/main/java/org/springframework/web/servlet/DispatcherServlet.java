@@ -302,7 +302,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	/** Perform cleanup of request attributes after include request?. */
 	private boolean cleanupAfterInclude = true;
 
-	/** MultipartResolver used by this servlet. */
+	/*
+		文件上传请求，MultipartResolver 会将 HttpServletRequest 封装成 MultipartHttpServletRequest ，
+		这样从 MultipartHttpServletRequest 中获得上传的文件
+	 */
 	@Nullable
 	private MultipartResolver multipartResolver;
 
@@ -1044,7 +1047,6 @@ public class DispatcherServlet extends FrameworkServlet {
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
-				// Determine handler for the current request.
                 //  <3> 获得请求对应的 HandlerExecutionChain 对象
 				// 它包含处理器( handler )和拦截器们( HandlerInterceptor 数组 )。
 				mappedHandler = getHandler(processedRequest);
@@ -1053,7 +1055,6 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// Determine handler adapter for the current request.
                 //  <4>获得当前 handler 对应的 HandlerAdapter 对象
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
@@ -1073,7 +1074,6 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// Actually invoke the handler.
                 // <6> 真正的调用 handler 方法，并返回视图
 				// 。这里，一般就会调用我们定义的 Controller里 的方法。
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());

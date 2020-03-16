@@ -36,7 +36,8 @@ import java.util.List;
  * @author Juergen Hoeller
  * @since 20.06.2003
  * @see HandlerInterceptor
- * 处理器执行链 责任链模式
+ * 处理器执行链
+ * 责任链模式
  */
 public class HandlerExecutionChain {
 

@@ -71,7 +71,7 @@ import java.util.Set;
  * @see #initServletBean
  * @see #doGet
  * @see #doPost
- *  负责将 ServletConfig的参数数据（在web.xml配置的） 设置到【当前】 Servlet 对象中
+ *  负责将 ServletConfig的参数数据（初始化参数（如<init-param>）在web.xml配置的） 设置到【当前】 Servlet 对象中
  *
  *  实现 EnvironmentCapable、EnvironmentAware 接口，继承 HttpServlet 抽象类，
  *  负责将 ServletConfig 集成到 Spring 中。当然，HttpServletBean 自身也是一个抽象类。
@@ -94,12 +94,6 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	private final Set<String> requiredProperties = new HashSet<>(4);
 
 	/**
-	 * Subclasses can invoke this method to specify that this property
-	 * (which must match a JavaBean property they expose) is mandatory,
-	 * and must be supplied as a config parameter. This should be called
-	 * from the constructor of a subclass.
-	 * <p>This method is only relevant in case of traditional initialization
-	 * driven by a ServletConfig instance.
 	 * @param property name of the required property
 	 *  requiredProperties 属性，必须配置的属性的集合。可通过 #addRequiredProperty(String property) 方法，
 	 */
@@ -144,11 +138,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	}
 
 	/**
-	 * Map config parameters onto bean properties of this servlet, and
-	 * invoke subclass initialization.
-	 * @throws ServletException if bean properties are invalid (or required
-	 * properties are missing), or if subclass initialization fails.
-	 * 负责将 ServletConfig（如<init-param>） 设置到当前 Servlet 对象中。
+	 * 负责将 ServletConfig初始化参数（如<init-param>） 设置到当前 Servlet 对象中。
 	 * 】】】servlet中的方法，tomcat服务器创建servlet对象的时候,会帮我们去调用init(ServletConfig config)进行servlet类中的初始化工作
 	 */
 	@Override
@@ -180,7 +170,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 				// <2.2> 注册自定义属性编辑器，一旦碰到 Resource 类型的属性，将会使用 ResourceEditor 进行解析
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
                 // <2.3>空实现，留给子类覆盖
-				// 然而实际上，子类暂时木有任何实现。
+				// 【然而实际上，子类暂时木有任何实现】。
 				initBeanWrapper(bw);
 
 

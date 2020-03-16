@@ -148,39 +148,20 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		等方法。而这些实现，最终会调用 #processRequest(HttpServletRequest request, HttpServletResponse response) 方法，处理请求。
 	 */
 
-	/**
-	 * Suffix for WebApplicationContext namespaces. If a servlet of this class is
-	 * given the name "test" in a context, the namespace used by the servlet will
-	 * resolve to "test-servlet".
-	 */
 	public static final String DEFAULT_NAMESPACE_SUFFIX = "-servlet";
 
-	/**
-	 * Default context class for FrameworkServlet.
-	 * @see org.springframework.web.context.support.XmlWebApplicationContext
-	 */
+	// 默认的ApplicationContext类
 	public static final Class<?> DEFAULT_CONTEXT_CLASS = XmlWebApplicationContext.class;
 
-	/**
-	 * Prefix for the ServletContext attribute for the WebApplicationContext.
-	 * The completion is the servlet name.
-	 */
 	public static final String SERVLET_CONTEXT_PREFIX = FrameworkServlet.class.getName() + ".CONTEXT.";
 
-	/**
-	 * Any number of these characters are considered delimiters between
-	 * multiple values in a single init-param String value.
-	 */
 	private static final String INIT_PARAM_DELIMITERS = ",; \t\n";
 
 
-	/** ServletContext attribute to find the WebApplicationContext in. */
 	@Nullable
 	private String contextAttribute;
 
 	/**
-     * WebApplicationContext implementation class to create.
-     *
      * 创建的 WebApplicationContext 类型，默认为 DEFAULT_CONTEXT_CLAS
 	 * public static final Class<?> DEFAULT_CONTEXT_CLASS = XmlWebApplicationContext.class;
      */
@@ -195,8 +176,6 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private String namespace;
 
 	/**
-     * Explicit context config location.
-     *
      * 配置文件的地址 ，配置文件的地址。例如：/WEB-INF/spring-servlet.xml 。
      */
 	@Nullable
@@ -206,13 +185,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private final List<ApplicationContextInitializer<ConfigurableApplicationContext>> contextInitializers =
 			new ArrayList<>();
 
-	/** Comma-delimited ApplicationContextInitializer class names set through init param. */
 	@Nullable
 	private String contextInitializerClasses;
-
 	/**
-     * Should we publish the context as a ServletContext attribute?.
-     *
      * 是否将 {@link #webApplicationContext} 设置到 {@link ServletContext} 的属性种
      */
 	private boolean publishContext = true;
@@ -230,23 +205,17 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private boolean dispatchTraceRequest = false;
 
 	/**
-     * WebApplicationContext for this servlet.
-     *
      * WebApplicationContext 对象，即本文的关键，Servlet WebApplicationContext 容器。它有四种方式进行“创建”。
      */
 	@Nullable
 	private WebApplicationContext webApplicationContext;
 
 	/**
-     * If the WebApplicationContext was injected via {@link #setApplicationContext}.
-     *
      * 标记 {@link #webApplicationContext} 属性，是否通过 {@link #setApplicationContext(ApplicationContext)} 方法进行注入
      */
 	private boolean webApplicationContextInjected = false;
 
 	/**
-     * Flag used to detect whether onRefresh has already been called.
-     *
      * 标记是否接收到 ContextRefreshedEvent 事件。即 {@link #onApplicationEvent(ContextRefreshedEvent)}
      */
 	private boolean refreshEventReceived = false;
@@ -255,20 +224,6 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private boolean enableLoggingRequestDetails = false;
 
 	/**
-	 * Create a new {@code FrameworkServlet} that will create its own internal web
-	 * application context based on defaults and values provided through servlet
-	 * init-params. Typically used in Servlet 2.5 or earlier environments, where the only
-	 * option for servlet registration is through {@code web.xml} which requires the use
-	 * of a no-arg constructor.
-	 * <p>Calling {@link #setContextConfigLocation} (init-param 'contextConfigLocation')
-	 * will dictate which XML files will be loaded by the
-	 * {@linkplain #DEFAULT_CONTEXT_CLASS default XmlWebApplicationContext}
-	 * <p>Calling {@link #setContextClass} (init-param 'contextClass') overrides the
-	 * default {@code XmlWebApplicationContext} and allows for specifying an alternative class,
-	 * such as {@code AnnotationConfigWebApplicationContext}.
-	 * <p>Calling {@link #setContextInitializerClasses} (init-param 'contextInitializerClasses')
-	 * indicates which {@link ApplicationContextInitializer} classes should be used to
-	 * further configure the internal application context prior to refresh().
 	 * @see #FrameworkServlet(WebApplicationContext)
 	 */
 	public FrameworkServlet() {
@@ -564,7 +519,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		    // 初始化 WebApplicationContext 对象
 			this.webApplicationContext = initWebApplicationContext();
 			// 空实现。子类有需要，可以实现该方法，实现自定义逻辑
-			// 然而实际上，并没有子类，对该方法重新实现。
+			// 【然而实际上，并没有子类，对该方法重新实现】。
 			initFrameworkServlet();
 		} catch (ServletException | RuntimeException ex) {
 			logger.error("Context initialization failed", ex);
@@ -671,9 +626,6 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		// 如果未触发刷新事件，则主动触发刷新事件
 		// 默认是private boolean refreshEventReceived = false;
 		if (!this.refreshEventReceived) {
-			// Either the context is not a ConfigurableApplicationContext with refresh
-			// support or the context injected at construction time had already been
-			// refreshed -> trigger initial onRefresh manually here.
 			onRefresh(wac);
 		}
 
@@ -798,7 +750,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 
 		// <5> 执行处理完 WebApplicationContext 后的逻辑。
-		// 目前是个空方法，暂无任何实现
+		// 【目前是个空方法，暂无任何实现】
 		postProcessWebApplicationContext(wac);
 
 		// 执行自定义初始化 context TODO 芋艿，暂时忽略
@@ -944,8 +896,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 */
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 	    // 标记 refreshEventReceived 为 true
+		// 这样，在 #initWebApplicationContext() 方法的 <3> 的逻辑，就不会调用 #onRefresh() 方法。
 		this.refreshEventReceived = true;
 		// 处理事件中的 ApplicationContext 对象。这个方法，目前是空实现，由子类 DispatcherServlet 来实现。
+		// 也就回到了 「4.5 onRefresh」 的逻辑了。
 		onRefresh(event.getApplicationContext());
 	}
 

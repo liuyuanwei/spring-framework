@@ -320,6 +320,10 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * 该方法，是对 WebApplicationObjectSupport 的覆写，
 	 * 而 WebApplicationObjectSupport 的集成关系是 WebApplicationObjectSupport => ApplicationObjectSupport => ApplicationContextAware 。
 	 */
+	/*
+		    我们来分析一下 setApplicationContext 调用时机，首先该方法来自 ApplicationContextAware，
+		    该方法是在 ApplicationContextAwareProcessor.invokeAwareInterfaces 被调用。
+	 */
 	@Override
 	protected void initApplicationContext() throws BeansException {
 	    // <1> 空方法。交给子类实现，用于注册自定义的拦截器到 interceptors 中。
@@ -329,6 +333,8 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		/*
 			为什么会扫描 MappedInterceptor 的 Bean 们？详细解析
 			<mvc:interceptors /> 标签」
+			】】】探测所有 MappedInterceptor填充 adaptedInterceptors
+       			<mvc:interceptors>下的一个个 <mvc:interceptor>就会被封装成 MappedInterceptor
 
 		 */
 		// <2> 【扫描已注册的 MappedInterceptor 的 Bean 们】，添加到 mappedInterceptors 中
