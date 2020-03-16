@@ -71,10 +71,20 @@ import java.util.stream.Stream;
  * @see #addBeanPostProcessor
  * @see #getBean
  * @see #resolveDependency
+ * DefaultListableBeanFactory是ConfigurableListableBeanFactory（其实就是 BeanFactory ） 和 BeanDefinitionRegistry 接口的默认实现：一个基于 BeanDefinition 元数据的完整 bean 工厂
+ * 】】】所以相对于 SimpleBeanDefinitionRegistry 而言，【DefaultListableBeanFactory 则是一个具有注册功能的完整 Bean 工厂】
+ *它同样是用 ConcurrentHashMap 数据结构来存储注册的 BeanDefinition 。
  */
 @SuppressWarnings("serial")
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
 		implements ConfigurableListableBeanFactory, BeanDefinitionRegistry, Serializable {
+	/*
+		// 注册表，由 BeanDefinition 的标识 （beanName） 与其实例组成
+		private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, bean>(64);
+
+		// 标识（beanName）集合
+		private final List<String> beanDefinitionNames = new ArrayList<String>(64);
+	 */
 
 	@Nullable
 	private static Class<?> javaxInjectProviderClass;
@@ -840,6 +850,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	// Implementation of BeanDefinitionRegistry interface
 	//---------------------------------------------------------------------
 
+	/*
+		其实下面一堆代码最重要就只有一句，就是 <x> 处：
+			this.beanDefinitionMap.put(beanName, beanDefinition);
+
+	 */
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {

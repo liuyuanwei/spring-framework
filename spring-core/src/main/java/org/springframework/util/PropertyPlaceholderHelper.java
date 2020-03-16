@@ -31,6 +31,14 @@ import java.util.*;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @since 3.0
+ * 用于解析占位符的工具类。
+ */
+/*
+	ropertyPlaceholderHelper 是用于处理包含占位符值的字符串，构造该实例需要四个参数：
+		placeholderPrefix：占位符前缀。
+		placeholderSuffix：占位符后缀。
+		valueSeparator：占位符变量与关联的默认值之间的分隔符。
+		ignoreUnresolvablePlaceholders：指示是否忽略不可解析的占位符（true）或抛出异常（false）。
  */
 public class PropertyPlaceholderHelper {
 

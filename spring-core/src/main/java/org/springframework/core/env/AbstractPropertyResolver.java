@@ -36,29 +36,43 @@ import java.util.Set;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @since 3.1
+ * 解析属性文件的抽象基类
+ */
+/*
+	AbstractPropertyResolver 作为基类它仅仅只是设置了一些解析属性文件所需要配置或者转换器，
+	如 #setConversionService(...)、#setPlaceholderPrefix(...)、#setValueSeparator(...) 。
+	其实这些方法的实现都比较简单，都是设置或者获取 AbstractPropertyResolver 所提供的属性
+	而对属性的访问，则委托给子类 PropertySourcesPropertyResolver 实现
  */
 public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	// 类型转换器
 	@Nullable
 	private volatile ConfigurableConversionService conversionService;
 
+	// 占位符
 	@Nullable
 	private PropertyPlaceholderHelper nonStrictHelper;
 
 	@Nullable
 	private PropertyPlaceholderHelper strictHelper;
 
+	// 设置是否抛出异常
 	private boolean ignoreUnresolvableNestedPlaceholders = false;
 
+	// 占位符前缀
 	private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;
 
+	// 占位符后缀
 	private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
 
+	// 与默认值的分割
 	@Nullable
 	private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
 
+	// 必须要有的字段值
 	private final Set<String> requiredProperties = new LinkedHashSet<>();
 
 
@@ -66,7 +80,8 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	public ConfigurableConversionService getConversionService() {
 		// Need to provide an independent DefaultConversionService, not the
 		// shared DefaultConversionService used by PropertySourcesPropertyResolver.
-        // 需要提供独立的DefaultConversionService，而不是PropertySourcesPropertyResolver 使用的共享DefaultConversionService。
+        // 需要提供独立的DefaultConversionService，
+		// 而不是PropertySourcesPropertyResolver 使用的共享DefaultConversionService。
 		ConfigurableConversionService cs = this.conversionService;
 		if (cs == null) {
 			synchronized (this) {
@@ -224,6 +239,11 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * @see #setIgnoreUnresolvableNestedPlaceholders
 	 */
 	protected String resolveNestedPlaceholders(String value) {
+		/*
+			如果 this.ignoreUnresolvableNestedPlaceholders 为 true ，则调用 #resolvePlaceholders(String text) 方法，
+			否则调用 #resolveRequiredPlaceholders(String text) 方法，
+			但是无论是哪个方法，最终都会到 #doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) 方法
+		 */
 		return (this.ignoreUnresolvableNestedPlaceholders ?
 				resolvePlaceholders(value) : resolveRequiredPlaceholders(value));
 	}
@@ -233,6 +253,8 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 				this.valueSeparator, ignoreUnresolvablePlaceholders);
 	}
 
+	// String 类型的 text：待解析的字符串
+	// PropertyPlaceholderHelper 类型的 helper：用于解析占位符的工具类。
 	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
 		return helper.replacePlaceholders(text, this::getPropertyAsRawString);
 	}
@@ -244,6 +266,12 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * @return the converted value, or the original value if no conversion
 	 * is necessary
 	 * @since 4.3.5
+	 */
+	/*
+		首先，获取类型转换服务 conversionService 。若为空，则判断是否可以通过反射来设置，
+		如果可以则直接强转返回，否则构造一个 DefaultConversionService 实例。
+		最后调用其 #convert(Object source, Class<T> targetType) 方法，完成类型转换。
+		后续就是 Spring 类型转换体系的事情了
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable

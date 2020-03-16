@@ -415,7 +415,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
         // <4> 解析属性，构造 AbstractBeanDefinition 对象
-		// 对属性进行解析并封装成 AbstractBeanDefinition 实例 beanDefinition
+		// 】】】对属性进行解析并封装成 AbstractBeanDefinition 实例 beanDefinition
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 		    // <3.3> beanName还是为空，使用 默认规则生产默认的beanName
@@ -508,7 +508,7 @@ public class BeanDefinitionParserDelegate {
 			// ！！！委托 BeanDefinitionReaderUtils 创建AbstractBeanDefinition对象
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
-            // 解析默认 bean 的各种属性（如：scope、lazy-init等）
+            // 】】】解析默认 bean 的各种属性（如：scope、lazy-init等）
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
             // 提取 description
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));

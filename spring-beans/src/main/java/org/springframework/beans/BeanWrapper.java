@@ -45,6 +45,23 @@ import java.beans.PropertyDescriptor;
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.validation.BeanPropertyBindingResult
  * @see org.springframework.validation.DataBinder#initBeanPropertyAccess()
+ * 在实例化 Bean 阶段，我们从 BeanDefinition 得到的并不是我们最终想要的 Bean 实例，而是 BeanWrapper 实例
+ * BeanWrapper 体系相比于 Spring 中其他体系是比较简单的，
+ * 它作为 BeanDefinition 向 Bean 转换过程中的中间产物，
+ * 承载了 Bean 实例的包装、类型转换、属性的设置以及访问等重要作用。
+ */
+/*
+	所以这里 BeanWrapper 是一个从 BeanDefinition 到 Bean 直接的中间产物，我们可以称它为”低级 bean“
+	在一般情况下，我们不会在实际项目中用到它。
+	】】】BeanWrapper 是 Spring 框架中重要的组件类，它就相当于一个代理类，Spring 委托 BeanWrapper 完成 Bean 属性的填充工作。
+ 	在 Bean 实例被 InstantiationStrategy 创建出来后，Spring 容器会将 Bean 实例通过 BeanWrapper 包裹起来
+ */
+/*
+	BeanWrapper 主要继承三个核心接口：PropertyAccessor、PropertyEditorRegistry、TypeConverter。
+	BeanWrapper 继承上述三个接口，那么它就具有三重身份：
+		属性编辑器
+		属性编辑器注册表
+		类型转换器
  */
 public interface BeanWrapper extends ConfigurablePropertyAccessor {
 

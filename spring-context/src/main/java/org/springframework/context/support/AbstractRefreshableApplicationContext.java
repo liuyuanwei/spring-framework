@@ -139,14 +139,26 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		}
 		try {
 		    // 创建 BeanFactory 对象
+			// 】】】其实就是 DefaultListableBeanFactory，其中beanFactory的parent是null
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 用于 BeanFactory 的序列化，我想不部分人应该都用不到
 			// 指定序列化编号
 			beanFactory.setSerializationId(getId());
+
+			/*
+				设置 BeanFactory 的两个配置属性：是否允许 Bean 覆盖、是否允许循环引用
+			 */
 			// 定制 BeanFactory 设置相关属性
 			customizeBeanFactory(beanFactory);
-			// 加载 BeanDefinition 们
+
+			// 】】】加载 BeanDefinition 们
+			// 具体由子类实现，我们以 AbstractXmlApplicationContext 为例，
 			loadBeanDefinitions(beanFactory);
-			// 设置 Context 的 BeanFactory
+
+			/*
+				将创建好的 bean 工厂的引用交给的 context 来管理
+			 */
+			// 】】】设置 Context 的 BeanFactory
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
 			}

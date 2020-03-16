@@ -98,27 +98,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		implements ConfigurableApplicationContext {
 
-	/**
-	 * Name of the MessageSource bean in the factory.
-	 * If none is supplied, message resolution is delegated to the parent.
-	 * @see MessageSource
-	 */
 	public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
 
-	/**
-	 * Name of the LifecycleProcessor bean in the factory.
-	 * If none is supplied, a DefaultLifecycleProcessor is used.
-	 * @see org.springframework.context.LifecycleProcessor
-	 * @see org.springframework.context.support.DefaultLifecycleProcessor
-	 */
 	public static final String LIFECYCLE_PROCESSOR_BEAN_NAME = "lifecycleProcessor";
 
-	/**
-	 * Name of the ApplicationEventMulticaster bean in the factory.
-	 * If none is supplied, a default SimpleApplicationEventMulticaster is used.
-	 * @see org.springframework.context.event.ApplicationEventMulticaster
-	 * @see org.springframework.context.event.SimpleApplicationEventMulticaster
-	 */
 	public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
 
@@ -165,14 +148,29 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Nullable
 	private Thread shutdownHook;
 
-	/** ResourcePatternResolver used by this context. */
+	/*
+		ResourcePatternResolver 接口继承 ResourceLoader 接口，为将 location 解析为 Resource 对象的策略接口。
+		他提供的 #getResources(String locationPattern) 方法，在 AbstractApplicationContext 中实现，
+		在 AbstractApplicationContext 中他持有一个 ResourcePatternResolver 的实例对象
+		你会发现最终是在 PathMatchingResourcePatternResolver 中实现，该类是 ResourcePatternResolver 接口的实现者
+	 */
 	private ResourcePatternResolver resourcePatternResolver;
 
-	/** LifecycleProcessor for managing the lifecycle of beans within this context. */
+	/*
+		在 AbstractApplicationContext 中存在一个 LifecycleProcessor 类型的实例对象 lifecycleProcessor ，
+		AbstractApplicationContext 中关于 Lifecycle 接口的实现都是委托给 lifecycleProcessor 实现的。
+	 */
 	@Nullable
 	private LifecycleProcessor lifecycleProcessor;
 
-	/** MessageSource we delegate our implementation of this interface to. */
+	/*
+		ApplicationContext 继承了 MessageSource接口
+
+		MessageSource 定义了获取 message 的策略方法 #getMessage(...) 。
+		在 ApplicationContext 体系中，该方法由 AbstractApplicationContext 实现。
+		在 AbstractApplicationContext 中，它持有一个 MessageSource 实例，
+		将 #getMessage(...) 方法委托给该实例(messageSource)来实现
+	 */
 	@Nullable
 	private MessageSource messageSource;
 
@@ -209,12 +207,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	// Implementation of ApplicationContext interface
 	//---------------------------------------------------------------------
 
-	/**
-	 * Set the unique id of this application context.
-	 * <p>Default is the object id of the context instance, or the name
-	 * of the context bean if the context is itself defined as a bean.
-	 * @param id the unique id of the context
-	 */
+
 	@Override
 	public void setId(String id) {
 		this.id = id;
@@ -273,10 +266,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Return the {@code Environment} for this application context in configurable
-	 * form, allowing for further customization.
-	 * <p>If none specified, a default environment will be initialized via
-	 * {@link #createEnvironment()}.
+	 * 如果持有的 environment 实例对象为空，
+	 * 则调用 #createEnvironment() 方法，创建一个StandardEnvironment 。
+	 * StandardEnvironment是一个适用于非 WEB 应用的 Environment。
 	 */
 	@Override
 	public ConfigurableEnvironment getEnvironment() {
@@ -340,10 +332,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Publish the given event to all listeners.
-	 * @param event the event to publish (may be an {@link ApplicationEvent}
-	 * or a payload object to be turned into a {@link PayloadApplicationEvent})
-	 * @param eventType the resolved event type, if known
+	 * 如果指定的事件不是 ApplicationEvent，则它将包装在PayloadApplicationEvent 中。
+	 * 如果存在父级 ApplicationContext ，则同样要将 event 发布给父级 ApplicationContext 。
 	 * @since 4.2
 	 */
 	protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
@@ -480,56 +470,94 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
-		synchronized (this.startupShutdownMonitor) { // 加锁，避免 #refresh() 和 #close() 方法，自身或者对方并行执行。
-			// Prepare this context for refreshing.
-            // 准备刷新的上下文
+		// 来个锁，不然 refresh() 还没结束，你又来个启动或销毁容器的操作，那不就乱套了嘛
+		// 避免 #refresh() 和 #close() 方法，自身或者对方并行执行。
+		synchronized (this.startupShutdownMonitor) {
+
+			/**
+			 * 准备工作，记录下容器的启动时间、标记“已启动”状态、处理配置文件中的占位符
+			 */
+            // 准备刷新的上下文环境，获取容器的当时时间，同时给容器设置同步标识
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.
-            // 初始化 BeanFactory ，并进行 XML 文件读取
+			// 】】】达到这里后 便完成了 创建 Bean 容器，加载并注册成 Bean。但是这步结束后，【Bean 并没有完成初始化】。
+			/*
+				这步比较关键，这步完成后，配置文件就会解析成一个个 Bean 定义(beanDefinition)，注册到 BeanFactory 中，
+				当然，这里说的 Bean 还没有初始化，只是配置信息都提取出来了，
+				注册也只是将这些信息都保存到了注册中心(说到底核心是一个 beanName-> beanDefinition 的 map)
+			 	【达到这里后 便完成了 创建 Bean 容器，加载Bean 并注册 Bean】
+			 */
+            // 创建并初始化 BeanFactory ，并进行 XML 文件读取
+			// 告诉子类重启refreshBeanFactory()方法，Bean定义资源文件的载入从子类的refreshBeanFactory()方法启动
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// Prepare the bean factory for use in this context.
-            // 对 BeanFactory 进行各种功能填充。
-            // TODO 包括对 @Autowired 和 @Qualifier 注解的属性注入
+			/**
+			 *  为beanFactory做一些准备，填充配置一些容器特性。对 BeanFactory 设置各种各种的功能。
+			 * 设置 BeanFactory 的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean
+			 */
+			//为BeanFactory配置容器特性，例如类加载器、事件处理器等
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				/*
+					为容器的某些子类指定特殊的BeanPost事件处理器
+				 */
                 // 子类覆盖该方法，做 BeanFactory 的额外的处理
 				postProcessBeanFactory(beanFactory);
-				// Invoke factory processors registered as beans in the context.
+
+				/*
+					调用所有注册的BeanFactoryPostProcessor的Bean
+				 */
                 // 激活各种 BeanFactory 处理器，例如 BeanFactoryPostProcessor
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
-                // 注册拦截 Bean 创建的 BeanPostProcessor。这里只是注册，真正的调用在 #getBean(...) 的时，即 Bean 创建的时候。
+
+                //】】】 注册拦截 Bean 创建的 BeanPostProcessor。
+				// 】】】这里只是注册，真正的调用在 #getBean(...) 的时，即 Bean 创建的时候。
                 // 注意：
                 //      1. BeanFactoryPostProcessor 作用于 BeanDefinition
                 //      2. BeanPostProcessor 作用于 Bean
+				// 与 BeanFactoryPostProcessor 一样，也是委托给 PostProcessorRegistrationDelegate 来实现的。
                 registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				// 【初始化信息源】，和国际化相关.
                 // TODO 芋艿，先暂时不看 为 Context 初始化 Message 源，即不同语言的消息体，国际化处理
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
-                // 初始化 Application Event Multicaster
+				/*
+					如果当前容器中存在 applicationEventMulticaster 的 bean，则对 applicationEventMulticaster 赋值，
+					否则新建一个 SimpleApplicationEventMulticaster 的对象（默认的），并完成注册。
+				 */
+				// 【初始化容器事件传播器.】
+                // 初始化 上下文事件广播器
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				/**
+				 *  从方法名就可以知道，典型的模板方法(钩子方法)，
+				 *  具体的子类可以在这里初始化一些特殊的 Bean（在初始化 singleton beans 之前）
+				 */
                 // 留给子类，来初始化其他特殊的 Bean 对象们
 				onRefresh();
 
-				// Check for listener beans and register them.
+				/*
+					在所有 bean 中查找 listener bean，然后注册到广播器中
+				 */
+				// 【为事件传播器注册事件监听器.】
                 // 注册监听器们
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				/**
+				 * / 重点，重点，重点
+				 *  始化所有的 singleton beans
+				 *  （lazy-init 的除外）
+				 */
                 // 初始化非延迟加载的单例
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				/*
+					完成刷新过程,通知生命周期处理器 lifecycleProcessor 刷新过程,同时发出 ContextRefreshEvent 通知别人
+				 */
+				// 初始化容器的生命周期事件处理器，并发布容器的生命周期事件
                 // 完成 refresh 逻辑
 				finishRefresh();
 			} catch (BeansException ex) {
@@ -537,14 +565,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 					logger.warn("Exception encountered during context initialization - " +
 							"cancelling refresh attempt: " + ex);
 				}
+				/**
+				 * 加载配置文件出错的时候
+				 * 解析类出错的时候
+				 * 初始化抛出不可预知异常的时候
+				 * 以上都会导致IOC容器异常终止的处理方法
+				 */
 
-				// Destroy already created singletons to avoid dangling resources.
+				//销毁已创建的Bean
 				destroyBeans();
 
-				// Reset 'active' flag.
+				//取消refresh操作，重置容器的同步标识.
 				cancelRefresh(ex);
 
-				// Propagate exception to caller.
+				// 抛出异常
 				throw ex;
 			} finally {
 				// Reset common introspection caches in Spring's core, since we
@@ -555,10 +589,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * 设置 context 启动时间
-		 设置 context 的当前状态
-		 初始化 context environment 中占位符
-		 对属性进行必要的验证
+	 * Prepare this context for refreshing, setting its startup date and
+	 * active flag as well as performing any initialization of property sources.
 	 */
 	protected void prepareRefresh() {
 	    // 记录启动时间
@@ -575,8 +607,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 
-		// Initialize any placeholder property sources in the context environment
-        // 初始化 PropertySource ，由子类覆盖实现。默认实现为空。
+        // 初始化 PropertySource ，由子类覆盖实现。
+		// 【默认实现为空。】
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable
@@ -618,22 +650,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Configure the factory's standard context characteristics,
 	 * such as the context's ClassLoader and post-processors.
 	 * @param beanFactory the BeanFactory to configure
-	 * 上面获取获取的 BeanFactory 除了加载了一些 BeanDefinition 就没有其他任何东西了，这个时候其实还不能投入生产，因为还少配置了一些东西，比如 context的 ClassLoader 和 后置处理器等等。
 	 */
 	protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-		// Tell the internal bean factory to use the context's class loader etc.
+
         // 设置 BeanFactory 的 ClassLoader ，和 Context 使用同一个 ClassLoader
 		beanFactory.setBeanClassLoader(getClassLoader());
+
 		// 设置 BeanFactory 的表达式语言表达式，Spring3 增加了表达式语言的支持
         // 默认可以使用 #{bean.xxx} 的形式来调用相关属性
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		// 添加 BeanFactory 的属性编辑器 ResourceEditorRegistrar 对象
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
-		// 我们来分析一下 setApplicationContext 调用时机，首先该方法来自 ApplicationContextAware，该方法是在 ApplicationContextAwareProcessor.invokeAwareInterfaces 被调用。
-		// https://www.liangzl.com/get-article-detail-5694.html
+		// 添加ApplicationContextAwareProcessor
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this)); // TODO 芋艿，后续补充下博客
-
         // 设置几个忽略自动装配的接口 TODO
         beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
@@ -983,16 +1013,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		close();
 	}
 
-	/**
-	 * Close this application context, destroying all beans in its bean factory.
-	 * <p>Delegates to {@code doClose()} for the actual closing procedure.
-	 * Also removes a JVM shutdown hook, if registered, as it's not needed anymore.
-	 * @see #doClose()
-	 * @see #registerShutdownHook()
+	/*
+	 * Closable 接口用于关闭和释放资源，提供了 #close() 方法，以释放对象所持有的资源。
+	 * 在 ApplicationContext 体系中由AbstractApplicationContext 实现，
+	 * 用于关闭 ApplicationContext 销毁所有 Bean ，
+	 * 此外如果注册有 JVM shutdown hook ，同样要将其移除。
 	 */
 	@Override
 	public void close() {
 		synchronized (this.startupShutdownMonitor) {
+			// 调用 #doClose() 方法，发布 ContextClosedEvent 事件，销毁所有 Bean（单例），关闭 BeanFactory 。
 			doClose();
 			// If we registered a JVM shutdown hook, we don't need it anymore now:
 			// We've already explicitly closed the context.
@@ -1008,9 +1038,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Actually performs context closing: publishes a ContextClosedEvent and
-	 * destroys the singletons in the bean factory of this application context.
-	 * <p>Called by both {@code close()} and a JVM shutdown hook, if any.
+	 * 调用 #doClose() 方法，发布 ContextClosedEvent 事件，销毁所有 Bean（单例），关闭 BeanFactory 。
 	 * @see org.springframework.context.event.ContextClosedEvent
 	 * @see #destroyBeans()
 	 * @see #close()

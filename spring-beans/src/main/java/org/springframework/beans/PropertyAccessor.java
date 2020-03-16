@@ -31,6 +31,15 @@ import org.springframework.lang.Nullable;
  * @see BeanWrapper
  * @see PropertyAccessorFactory#forBeanPropertyAccess
  * @see PropertyAccessorFactory#forDirectFieldAccess
+ * 可以访问属性的通用型接口（例如对象的 bean 属性或者对象中的字段），
+ * 作为 BeanWrapper 的基础接口。
+ */
+/*
+	就上面的源码我们可以分解为四类方法：
+		#isReadableProperty(String propertyName) 方法：判断指定 property 是否可读，是否包含 getter 方法。
+		#isWritableProperty(String propertyName) 方法：判断指定 property 是否可写,是否包含 setter 方法。
+		#getPropertyType(...) 方法：获取指定 propertyName 的类型
+		#setPropertyValue(...) 方法：设置指定 propertyValue 。
  */
 public interface PropertyAccessor {
 

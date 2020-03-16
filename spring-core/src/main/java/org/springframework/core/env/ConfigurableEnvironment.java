@@ -68,84 +68,31 @@ import java.util.Map;
  * @since 3.1
  * @see StandardEnvironment
  * @see org.springframework.context.ConfigurableApplicationContext#getEnvironment
+ * 提供设置激活的 profile 和默认的 profile 的功能以及操作 Properties 的工具
+ */
+/*
+	该类除了继承 Environment 接口外还继承了 ConfigurablePropertyResolver 接口，
+	所以它即具备了设置 profile 的功能也具备了操作 Properties 的功能。
+	同时还允许客户端通过它设置和验证所需要的属性，自定义转换服务等功能
  */
 public interface ConfigurableEnvironment extends Environment, ConfigurablePropertyResolver {
 
-	/**
-	 * Specify the set of profiles active for this {@code Environment}. Profiles are
-	 * evaluated during container bootstrap to determine whether bean definitions
-	 * should be registered with the container.
-	 * <p>Any existing active profiles will be replaced with the given arguments; call
-	 * with zero arguments to clear the current set of active profiles. Use
-	 * {@link #addActiveProfile} to add a profile while preserving the existing set.
-	 * @throws IllegalArgumentException if any profile is null, empty or whitespace-only
-	 * @see #addActiveProfile
-	 * @see #setDefaultProfiles
-	 * @see org.springframework.context.annotation.Profile
-	 * @see AbstractEnvironment#ACTIVE_PROFILES_PROPERTY_NAME
-	 */
+	// 指定该环境下的 profile 集
 	void setActiveProfiles(String... profiles);
 
-	/**
-	 * Add a profile to the current set of active profiles.
-	 * @throws IllegalArgumentException if the profile is null, empty or whitespace-only
-	 * @see #setActiveProfiles
-	 */
+	// 增加此环境的 profile
 	void addActiveProfile(String profile);
 
-	/**
-	 * Specify the set of profiles to be made active by default if no other profiles
-	 * are explicitly made active through {@link #setActiveProfiles}.
-	 * @throws IllegalArgumentException if any profile is null, empty or whitespace-only
-	 * @see AbstractEnvironment#DEFAULT_PROFILES_PROPERTY_NAME
-	 */
+	// 设置默认的 profile
 	void setDefaultProfiles(String... profiles);
 
-	/**
-	 * Return the {@link PropertySources} for this {@code Environment} in mutable form,
-	 * allowing for manipulation of the set of {@link PropertySource} objects that should
-	 * be searched when resolving properties against this {@code Environment} object.
-	 * The various {@link MutablePropertySources} methods such as
-	 * {@link MutablePropertySources#addFirst addFirst},
-	 * {@link MutablePropertySources#addLast addLast},
-	 * {@link MutablePropertySources#addBefore addBefore} and
-	 * {@link MutablePropertySources#addAfter addAfter} allow for fine-grained control
-	 * over property source ordering. This is useful, for example, in ensuring that
-	 * certain user-defined property sources have search precedence over default property
-	 * sources such as the set of system properties or the set of system environment
-	 * variables.
-	 * @see AbstractEnvironment#customizePropertySources
-	 */
+	// 返回此环境的 PropertySources
 	MutablePropertySources getPropertySources();
 
-	/**
-	 * Return the value of {@link System#getProperties()} if allowed by the current
-	 * {@link SecurityManager}, otherwise return a map implementation that will attempt
-	 * to access individual keys using calls to {@link System#getProperty(String)}.
-	 * <p>Note that most {@code Environment} implementations will include this system
-	 * properties map as a default {@link PropertySource} to be searched. Therefore, it is
-	 * recommended that this method not be used directly unless bypassing other property
-	 * sources is expressly intended.
-	 * <p>Calls to {@link Map#get(Object)} on the Map returned will never throw
-	 * {@link IllegalAccessException}; in cases where the SecurityManager forbids access
-	 * to a property, {@code null} will be returned and an INFO-level log message will be
-	 * issued noting the exception.
-	 */
+	// 尝试返回 System.getProperties() 的值，若失败则返回通过 System.getProperties(string) 的来访问各个键的映射
 	Map<String, Object> getSystemProperties();
 
-	/**
-	 * Return the value of {@link System#getenv()} if allowed by the current
-	 * {@link SecurityManager}, otherwise return a map implementation that will attempt
-	 * to access individual keys using calls to {@link System#getenv(String)}.
-	 * <p>Note that most {@link Environment} implementations will include this system
-	 * environment map as a default {@link PropertySource} to be searched. Therefore, it
-	 * is recommended that this method not be used directly unless bypassing other
-	 * property sources is expressly intended.
-	 * <p>Calls to {@link Map#get(Object)} on the Map returned will never throw
-	 * {@link IllegalAccessException}; in cases where the SecurityManager forbids access
-	 * to a property, {@code null} will be returned and an INFO-level log message will be
-	 * issued noting the exception.
-	 */
+	// 尝试返回 System.getenv() 的值，若失败则返回通过 System.getenv(string) 的来访问各个键的映射
 	Map<String, Object> getSystemEnvironment();
 
 	/**

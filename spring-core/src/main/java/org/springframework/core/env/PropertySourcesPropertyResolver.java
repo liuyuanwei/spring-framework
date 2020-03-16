@@ -28,6 +28,20 @@ import org.springframework.lang.Nullable;
  * @see PropertySource
  * @see PropertySources
  * @see AbstractEnvironment
+ * PropertyResolver 的实现者，
+ * 【他对一组 PropertySources】 提供属性解析服务
+ */
+/*
+	它仅有一个成员变量：PropertySources 。
+	该成员变量内部存储着一组 PropertySource，表示 key-value 键值对的源的抽象基类，
+	【即一个 PropertySource 对象则是一个 key-value 键值对】。
+
+	PropertySourcesPropertyResolver 对外公开的 #getProperty(...) 方法，
+	都是委托给 #getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) 方法实现，
+	他有三个参数，分别表示为：
+		key ：获取的 key 。
+		targetValueType ： 目标 value 的类型。
+		resolveNestedPlaceholders ：是否解决嵌套占位符
  */
 public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
@@ -85,12 +99,14 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 				Object value = propertySource.getProperty(key);
 				if (value != null) {
 				    // 如果解决嵌套占位符，解析占位符
+					// 同时根据 ignoreUnresolvableNestedPlaceholders 的值，来确定是否对不可解析的占位符的处理方法：是忽略还是抛出异常
 					if (resolveNestedPlaceholders && value instanceof String) {
 						value = resolveNestedPlaceholders((String) value);
 					}
 					// 如果未找到 key 对应的值，则打印日志
 					logKeyFound(key, propertySource, value);
 					// value 的类型转换
+					// 该方法就是完成类型转换的。
 					return convertValueIfNecessary(value, targetValueType);
 				}
 			}

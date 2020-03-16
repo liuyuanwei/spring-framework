@@ -22,38 +22,20 @@ package org.springframework.core;
  *
  * @author Juergen Hoeller
  * @since 2.5.2
+ * 用于别名管理的通用型接口，作为 BeanDefinitionRegistry 的顶层接口。 AliasRegistry 定义了一些别名管理的方法。
  */
 public interface AliasRegistry {
 
-	/**
-	 * Given a name, register an alias for it.
-	 * @param name the canonical name
-	 * @param alias the alias to be registered
-	 * @throws IllegalStateException if the alias is already in use
-	 * and may not be overridden
-	 */
+	// 注册别名
 	void registerAlias(String name, String alias);
 
-	/**
-	 * Remove the specified alias from this registry.
-	 * @param alias the alias to remove
-	 * @throws IllegalStateException if no such alias was found
-	 */
+	// 移除别名
 	void removeAlias(String alias);
 
-	/**
-	 * Determine whether this given name is defines as an alias
-	 * (as opposed to the name of an actually registered component).
-	 * @param name the name to check
-	 * @return whether the given name is an alias
-	 */
+	// 是否存在别名
 	boolean isAlias(String name);
 
-	/**
-	 * Return the aliases for the given name, if defined.
-	 * @param name the name to check for aliases
-	 * @return the aliases, or an empty array if none
-	 */
+	// 获取所有别名
 	String[] getAliases(String name);
 
 }

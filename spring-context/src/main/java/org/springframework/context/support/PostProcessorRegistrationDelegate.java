@@ -41,6 +41,11 @@ final class PostProcessorRegistrationDelegate {
 	private PostProcessorRegistrationDelegate() {
 	}
 
+	/*
+		上述代码较长，但是处理逻辑较为单一，
+		就是对所有的 BeanDefinitionRegistryPostProcessors 、手动注册的 BeanFactoryPostProcessor
+		以及通过配置文件方式的 BeanFactoryPostProcessor 按照 PriorityOrdered 、 Ordered、no ordered 三种方式分开处理、调用。
+	 */
     // 大体逻辑是，为了 BeanDefinitionRegistryPostProcessor 和 BeanFactoryPostProcessor 能执行对应的钩子方法
     // BeanDefinitionRegistryPostProcessor 本身是 BeanFactoryPostProcessor 的子类，相当于说，多一个钩子
     //      BeanFactoryPostProcessor 的目的，是为了改变 BeanDefinition

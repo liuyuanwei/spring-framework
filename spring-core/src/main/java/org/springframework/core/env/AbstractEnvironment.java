@@ -51,6 +51,7 @@ import org.springframework.util.StringUtils;
  * @since 3.1
  * @see ConfigurableEnvironment
  * @see StandardEnvironment
+ * Environment 的基础实现
  */
 public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 

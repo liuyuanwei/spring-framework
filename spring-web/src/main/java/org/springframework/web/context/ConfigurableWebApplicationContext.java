@@ -23,92 +23,44 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.lang.Nullable;
 
 /**
- * Interface to be implemented by configurable web application contexts.
- * Supported by {@link ContextLoader} and
- * {@link org.springframework.web.servlet.FrameworkServlet}.
  *
- * <p>Note: The setters of this interface need to be called before an
- * invocation of the {@link #refresh} method inherited from
- * {@link org.springframework.context.ConfigurableApplicationContext}.
- * They do not cause an initialization of the context on their own.
- *
- * @author Juergen Hoeller
  * @since 05.12.2003
- * @see #refresh
- * @see ContextLoader#createWebApplicationContext
- * @see org.springframework.web.servlet.FrameworkServlet#createWebApplicationContext
- * 】】】ConfigurableWebApplicationContext、WebApplicationContext, ConfigurableApplicationContext 这三个接口就可以构成一个比较完整的 Spring 容器
- * 该接口将这两个接口进行合并，提供了一个可配置、可管理、可关闭的 WebApplicationContext ，
- * 同时该接口还增加了 #setServletContext(ServletContext servletContext)，setServletConfig(ServletConfig servletConfig) 等方法，用于装配 WebApplicationContext 。
- * setConfigLocation 用于设置配置文件
+ */
+/*
+	WebApplicationContext 接口和 ConfigurableApplicationContext 接口有一个共同的子类接口 ConfigurableWebApplicationContext
+	该接口将这两个接口进行合并，提供了一个可配置、可管理、可关闭的 WebApplicationContext ，
+	同时该接口还增加了 #setServletContext(ServletContext servletContext)，setServletConfig(ServletConfig servletConfig) 等方法，
+	用于装配 WebApplicationContext 。
+
+	上面三个接口就可以构成一个比较完整的 Spring 容器，
  */
 public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
 
-	/**
-	 * Prefix for ApplicationContext ids that refer to context path and/or servlet name.
-	 */
+
 	String APPLICATION_CONTEXT_ID_PREFIX = WebApplicationContext.class.getName() + ":";
 
-	/**
-	 * Name of the ServletConfig environment bean in the factory.
-	 * @see javax.servlet.ServletConfig
-	 */
 	String SERVLET_CONFIG_BEAN_NAME = "servletConfig";
 
-
-	/**
-	 * Set the ServletContext for this web application context.
-	 * <p>Does not cause an initialization of the context: refresh needs to be
-	 * called after the setting of all configuration properties.
-	 * @see #refresh()
-	 */
+	// 为spring设置web应用上下文
 	void setServletContext(@Nullable ServletContext servletContext);
 
-	/**
-	 * Set the ServletConfig for this web application context.
-	 * Only called for a WebApplicationContext that belongs to a specific Servlet.
-	 * @see #refresh()
-	 */
+	// 设置ServletConfig
 	void setServletConfig(@Nullable ServletConfig servletConfig);
 
-	/**
-	 * Return the ServletConfig for this web application context, if any.
-	 */
+	// 获取ServletConfig
 	@Nullable
 	ServletConfig getServletConfig();
 
-	/**
-	 * Set the namespace for this web application context,
-	 * to be used for building a default context config location.
-	 * The root web application context does not have a namespace.
-	 */
 	void setNamespace(@Nullable String namespace);
 
-	/**
-	 * Return the namespace for this web application context, if any.
-	 */
 	@Nullable
 	String getNamespace();
 
-	/**
-	 * Set the config locations for this web application context in init-param style,
-	 * i.e. with distinct locations separated by commas, semicolons or whitespace.
-	 * <p>If not set, the implementation is supposed to use a default for the
-	 * given namespace or the root web application context, as appropriate.
-	 */
+	// 设置Spring配置的文件地址
 	void setConfigLocation(String configLocation);
-
-	/**
-	 * Set the config locations for this web application context.
-	 * <p>If not set, the implementation is supposed to use a default for the
-	 * given namespace or the root web application context, as appropriate.
-	 */
 	void setConfigLocations(String... configLocations);
 
-	/**
-	 * Return the config locations for this web application context,
-	 * or {@code null} if none specified.
-	 */
+	// 获取配置文件
 	@Nullable
 	String[] getConfigLocations();
 

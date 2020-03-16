@@ -41,6 +41,8 @@ import org.springframework.web.context.ConfigurableWebEnvironment;
  * @author Chris Beams
  * @since 3.1
  * @see StandardEnvironment
+ * 该类又继承了 StandardEnvironment 类。
+ * 且重写了 customizePropertySources 方法，并调用了父类的 customizePropertySources 方法。
  */
 public class StandardServletEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
 

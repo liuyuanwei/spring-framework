@@ -404,7 +404,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
-            // 获取 XML Document 实例
+            // 】】】获取 XML Document 实例
 			Document doc = doLoadDocument(inputSource, resource);
             // 根据 Document 实例，注册 Bean 信息
 			// 获取 XML Document 对象后，会根据该Document对象和 Resource 资源对象调用 registerBeanDefinitions(Document doc, Resource resource) 方法，
@@ -457,6 +457,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			获取 XML Document 实例。详细解析，见 《【死磕 Spring】—— IoC 之获取 Document 对象》 。
 
 			getEntityResolver() 方法，返回指定的解析器，如果没有指定，则构造一个未指定的默认解析器。
+			】】】EntityResolver 的作用就是，通过实现它，应用可以自定义如何寻找【验证文件】的逻辑。
 		 */
 	}
 
@@ -540,8 +541,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
-	    // 创建 BeanDefinitionDocumentReader 对象，BeanDefinitionDocumentReader 有且只有一个默认实现类 DefaultBeanDefinitionDocumentReader
-		// BeanDefinitionDocumentReader 对象定义读取 Document 并注册 BeanDefinition 功能
+
+		/*
+			创建 BeanDefinitionDocumentReader 对象，
+			BeanDefinitionDocumentReader 有且只有一个默认实现类 DefaultBeanDefinitionDocumentReader
+		 */
+		// 】】】BeanDefinitionDocumentReader 对象定义读取 Document 并注册 BeanDefinition 功能
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 获取已注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();

@@ -62,27 +62,18 @@ import org.springframework.core.io.ResourceLoader;
  *
  * 如果小伙伴对 Spring 的 ResourceLoader 比较熟悉的话，你会发现最终是在 PathMatchingResourcePatternResolver 中实现，该类是 ResourcePatternResolver 接口的实现者。
  */
+/*
+	在 AbstractApplicationContext 中实现，在 AbstractApplicationContext 中他持有一个 ResourcePatternResolver 的实例对象。
+	你会发现最终是在 PathMatchingResourcePatternResolver 中实现，该类是 ResourcePatternResolver 接口的实现者
+ */
 public interface ResourcePatternResolver extends ResourceLoader {
 
-	/**
-	 * Pseudo URL prefix for all matching resources from the class path: "classpath*:"
-	 * This differs from ResourceLoader's classpath URL prefix in that it
-	 * retrieves all matching resources for a given name (e.g. "/beans.xml"),
-	 * for example in the root of all deployed JAR files. 所有的 Jar
-	 * @see org.springframework.core.io.ResourceLoader#CLASSPATH_URL_PREFIX
-	 */
-	String CLASSPATH_ALL_URL_PREFIX = "classpath*:"; // CLASSPATH URL 前缀。默认为："classpath*:" ，和 ResourceLoader 的 "classpath:" 不同。
+	// CLASSPATH URL 前缀。默认为："classpath*:" ，和 ResourceLoader 的 "classpath:" 不同。
+	String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 
 	/**
+	 * 根据路径, 获取资源列表
      * 返回多个 Resource 对象
-     *
-	 * Resolve the given location pattern into Resource objects.
-	 * <p>Overlapping resource entries that point to the same physical
-	 * resource should be avoided, as far as possible. The result should
-	 * have set semantics.
-	 * @param locationPattern the location pattern to resolve
-	 * @return the corresponding Resource objects
-	 * @throws IOException in case of I/O errors
 	 */
 	Resource[] getResources(String locationPattern) throws IOException;
 

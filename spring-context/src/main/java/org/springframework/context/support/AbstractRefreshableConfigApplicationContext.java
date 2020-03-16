@@ -24,17 +24,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * {@link AbstractRefreshableApplicationContext} subclass that adds common handling
- * of specified config locations. Serves as base class for XML-based application
- * context implementations such as {@link ClassPathXmlApplicationContext} and
- * {@link FileSystemXmlApplicationContext}, as well as
- * {@link org.springframework.web.context.support.XmlWebApplicationContext}.
- *
- * @author Juergen Hoeller
  * @since 2.5.2
  * @see #setConfigLocation
  * @see #setConfigLocations
  * @see #getDefaultConfigLocations
+ *  AbstractRefreshableConfigApplicationContext 又实现了 BeanNameAware 和 InitializingBean 接口
+ *  注意：在afterPropertiesSet方法有调用refresh方法（刷新整个 Spring 上下文信息）
  */
 @SuppressWarnings("JavadocReference")
 public abstract class AbstractRefreshableConfigApplicationContext extends AbstractRefreshableApplicationContext
@@ -157,6 +152,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 	@Override
 	public void afterPropertiesSet() {
 		if (!isActive()) {
+			// 该方法在 AbstractApplicationContext 中执行，执行整个 Spring 容器的初始化过程
 			refresh();
 		}
 	}

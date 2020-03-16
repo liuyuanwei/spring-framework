@@ -30,6 +30,7 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 2.5
  * @see #determineUrlsForHandler
+ * 继承 AbstractUrlHandlerMapping 抽象类，自动探测的 UrlHandlerMapping 抽象实现类。
  */
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
@@ -78,11 +79,17 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 				applicationContext.getBeanNamesForType(Object.class));
 
 		// Take any bean name that we can determine URLs for.
-        // 遍历 Bean ，逐个注册
+        // <2> 遍历 Bean ，逐个注册
 		for (String beanName : beanNames) {
-		    // 获得 Bean 对应的 URL 们
+
+			/*
+				这是 AbstractDetectingUrlHandlerMapping 的关键方法。
+				但是，AbstractDetectingUrlHandlerMapping 只是搭建了自动探测的骨架。
+				具体的探索逻辑，还是交给子类处理——BeanNameUrlHandlerMapping。
+			 */
+		    // <2.1> 获得 Bean 对应的 URL 们
 			String[] urls = determineUrlsForHandler(beanName);
-			// 如果 URL 们非空，则执行注册处理器
+			// <2.2> 如果 URL 们非空，则执行注册处理器
 			if (!ObjectUtils.isEmpty(urls)) {
 				// URL paths found: Let's consider it a handler.
 				registerHandler(urls, beanName);

@@ -343,16 +343,22 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			3、注册解析后的 BeanDefinition 。
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+
+		/*
+			如果解析成功，则返回 BeanDefinitionHolder 对象。
+			而 BeanDefinitionHolder 包括 beanName(bean名字) 和 alias(别名集合) 以及 BeanDefinition 对象
+        	如果解析失败，则返回 null ，错误由 ProblemReporter 处理。
+		 */
 	    // <1> 进行 bean 元素解析。
-        // 如果解析成功，则返回 BeanDefinitionHolder 对象。而 BeanDefinitionHolder 包括 beanName(bean名字) 和 alias(别名集合) 以及 BeanDefinition 对象
-        // 如果解析失败，则返回 null ，错误由 ProblemReporter 处理。
 		// ！！！具体实现是委托 BeanDefinitionReaderUtils 创建AbstractBeanDefinition对象
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
+
+
 		if (bdHolder != null) {
 		    // <2> 进行自定义标签处理
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
-			    // <3> 对 bdHolder 进行 BeanDefinition 的注册
+			    // 】】】<3> 对 bdHolder 进行 BeanDefinition 的注册
 				//  ！！！具体注册是委托 BeanDefinitionReaderUtils 创建注册
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			} catch (BeanDefinitionStoreException ex) {
