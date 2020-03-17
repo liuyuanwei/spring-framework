@@ -60,6 +60,9 @@ import org.springframework.web.method.HandlerMethod;
 public interface AsyncHandlerInterceptor extends HandlerInterceptor {
 
 	/**
+	 * AsyncHandlerInterceptor提供了一个afterConcurrentHandlingStarted()方法, 这个方法会在Controller方法异步执行时开始执行,
+	 * 而Interceptor的postHandle方法则是需要等到Controller的异步执行完才能执行
+	 * https://www.cnblogs.com/zemliu/p/3556615.html
 	 * Called instead of {@code postHandle} and {@code afterCompletion}
 	 * when the handler is being executed concurrently.
 	 * <p>Implementations may use the provided request and response but should

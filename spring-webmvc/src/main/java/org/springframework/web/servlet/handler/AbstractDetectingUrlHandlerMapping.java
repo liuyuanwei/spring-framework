@@ -31,6 +31,7 @@ import org.springframework.util.ObjectUtils;
  * @since 2.5
  * @see #determineUrlsForHandler
  * 继承 AbstractUrlHandlerMapping 抽象类，自动探测的 UrlHandlerMapping 抽象实现类。
+ * 重写了initApplicationContext方法
  */
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
@@ -39,14 +40,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
      */
 	private boolean detectHandlersInAncestorContexts = false;
 
-	/**
-	 * Set whether to detect handler beans in ancestor ApplicationContexts.
-	 * <p>Default is "false": Only handler beans in the current ApplicationContext
-	 * will be detected, i.e. only in the context that this HandlerMapping itself
-	 * is defined in (typically the current DispatcherServlet's context).
-	 * <p>Switch this flag on to detect handler beans in ancestor contexts
-	 * (typically the Spring root WebApplicationContext) as well.
-	 */
+
 	public void setDetectHandlersInAncestorContexts(boolean detectHandlersInAncestorContexts) {
 		this.detectHandlersInAncestorContexts = detectHandlersInAncestorContexts;
 	}
@@ -72,7 +66,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 * @see #determineUrlsForHandler(String)
 	 */
 	protected void detectHandlers() throws BeansException {
-	    // 获得 Bean 的名字的数组
+	    // <1> 获得 Bean 的名字的数组
 		ApplicationContext applicationContext = obtainApplicationContext();
 		String[] beanNames = (this.detectHandlersInAncestorContexts ?
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class) :
@@ -83,15 +77,17 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 		for (String beanName : beanNames) {
 
 			/*
-				这是 AbstractDetectingUrlHandlerMapping 的关键方法。
-				但是，AbstractDetectingUrlHandlerMapping 只是搭建了自动探测的骨架。
-				具体的探索逻辑，还是交给子类处理——BeanNameUrlHandlerMapping。
+				determineUrlsForHandler抽象方法，获得 Bean 对应的 URL 们。
+				这是 AbstractDetectingUrlHandlerMapping 的关键方法。但是，AbstractDetectingUrlHandlerMapping 只是搭建了自动探测的骨架。
+				具体的探索逻辑，还是交给子类处理。
 			 */
 		    // <2.1> 获得 Bean 对应的 URL 们
 			String[] urls = determineUrlsForHandler(beanName);
 			// <2.2> 如果 URL 们非空，则执行注册处理器
 			if (!ObjectUtils.isEmpty(urls)) {
-				// URL paths found: Let's consider it a handler.
+				/*
+					如果 URL 们非空，则调用父类 AbstractUrlHandlerMapping 的 #registerHandler(String[] urlPaths, String beanName) 方法，执行注册处理器。
+				 */
 				registerHandler(urls, beanName);
 			}
 		}

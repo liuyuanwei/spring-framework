@@ -49,6 +49,8 @@ import java.util.*;
  * @see #setMappings
  * @see #setUrlMap
  * @see BeanNameUrlHandlerMapping
+ * 继承 AbstractUrlHandlerMapping 抽象类，简单的 简单的 UrlHandlerMapping 实现类。
+ * 重写了initApplicationContext方法
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
@@ -56,6 +58,11 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
      * 配置的 URL 与处理器的映射
      *
      * 最终，会调用 {@link #registerHandlers(Map)} 进行注册到 {@link AbstractUrlHandlerMapping#handlerMap} 中
+     */
+    /*
+    	可以通过如下两个方法，设置到 urlMap 属性
+    		setMappings
+    		setUrlMap
      */
 	private final Map<String, Object> urlMap = new LinkedHashMap<>();
 
@@ -128,7 +135,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 				if (handler instanceof String) { // trim 方法，去掉头尾空格
 					handler = ((String) handler).trim();
 				}
-				// 【核心代码】注册处理器
+				// 】】】【核心代码】注册处理器，调用AbstractUrlHandlerMapping的方法
 				registerHandler(url, handler);
 			});
 			// 打印日志
