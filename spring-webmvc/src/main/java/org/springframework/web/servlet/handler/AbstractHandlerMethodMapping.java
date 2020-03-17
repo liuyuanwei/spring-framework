@@ -38,21 +38,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Abstract base class for {@link HandlerMapping} implementations that define
- * a mapping between a request and a {@link HandlerMethod}.
- *
- * <p>For each registered handler method, a unique mapping is maintained with
- * subclasses defining the details of the mapping type {@code <T>}.
- *
- * @author Arjen Poutsma
- * @author Rossen Stoyanchev
- * @author Juergen Hoeller
  * @since 3.1
  * @param <T> the mapping for a {@link HandlerMethod} containing the conditions
- * needed to match the handler method to incoming request.
  * 】】】基于 Method 进行匹配
  * 实现 InitializingBean 接口，继承 AbstractHandlerMapping 抽象类
- * 【以 Method 作为 Handler 的 HandlerMapping 抽象类】，提供 Mapping 的初始化、注册等通用的骨架方法。这就是我们常说的“模板方法模式” 。
+ * 【以 Method 作为 Handler 的 HandlerMapping 抽象类】，
+ * 】】】提供 Mapping 的初始化、注册等通用的骨架方法。这就是我们常说的“模板方法模式” 。
  * 基于 Method 进行匹配。例如，我们所熟知的 @RequestMapping 等注解的方式
  *
  * 那么，可能比较重要的问题是，究竟 Mapping 是什么？
@@ -61,20 +52,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /*
 	那么具体是什么呢？AbstractHandlerMethodMapping 定义为了 <T> 泛型，交给子类做决定。
 	例如，子类 RequestMappingInfoHandlerMapping 使用 RequestMappingInfo 类作为 <T> 泛型，
-	也就是我们在 「2. 注解」 看到的 @RequestMapping 等注解。
+	【也就是我们在 「2. 注解」 看到的 @RequestMapping 等注解。】
  */
 public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
 
-	/**
-	 * Bean name prefix for target beans behind scoped proxies. Used to exclude those
-	 * targets from handler method detection, in favor of the corresponding proxies.
-	 * <p>We're not checking the autowire-candidate status here, which is how the
-	 * proxy target filtering problem is being handled at the autowiring level,
-	 * since autowire-candidate may have been turned to {@code false} for other
-	 * reasons, while still expecting the bean to be eligible for handler methods.
-	 * <p>Originally defined in {@link org.springframework.aop.scope.ScopedProxyUtils}
-	 * but duplicated here to avoid a hard dependency on the spring-aop module.
-	 */
+
 	private static final String SCOPED_TARGET_NAME_PREFIX = "scopedTarget.";
 
 	private static final HandlerMethod PREFLIGHT_AMBIGUOUS_MATCH =
@@ -98,7 +80,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
      * Mapping 命名策略
 	 * Handler 的 Method 的 Mapping 的名字生成策略接口
 	 * 可能不太好理解，获得 Mapping 的名字。这样，我们就可以根据 Mapping 的名字，获得 Handler 。
-	 * org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMethodMappingNamingStrategy 实现该接口
+     */
+    /*
+    	org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMethodMappingNamingStrategy 实现该接口
+    	比较好理解，分成两种情况。
+			情况一，如果 Mapping 已经配置名字，则直接返回。例如，@RequestMapping(name = "login", value = "user/login") 注解的方法，
+			它对应的 Mapping 的名字就是 "login" 。
+			情况二，如果 Mapping 未配置名字，则使用使用类名大写 + "#" + 方法名。例如，@RequestMapping(value = "user/login") 注解的方法，
+			假设它所在的类为 UserController ，对应的方法名为 login ，则它对应的 Mapping 的名字就是 USERCONTROLLER#login 。
      */
 	@Nullable
 	private HandlerMethodMappingNamingStrategy<T> namingStrategy;
@@ -110,12 +99,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	private final MappingRegistry mappingRegistry = new MappingRegistry();
 
 	/**
-	 * Whether to detect handler methods in beans in ancestor ApplicationContexts.
-	 * <p>Default is "false": Only beans in the current ApplicationContext are
-	 * considered, i.e. only in the context that this HandlerMapping itself
-	 * is defined in (typically the current DispatcherServlet's context).
-	 * <p>Switch this flag on to detect handler beans in ancestor contexts
-	 * (typically the Spring root WebApplicationContext) as well.
 	 * @see #getCandidateBeanNames()
 	 */
 	public void setDetectHandlerMethodsInAncestorContexts(boolean detectHandlerMethodsInAncestorContexts) {
@@ -123,11 +106,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
-	 * Configure the naming strategy to use for assigning a default name to every
-	 * mapped handler method.
-	 * <p>The default naming strategy is based on the capital letters of the
-	 * class name followed by "#" and then the method name, e.g. "TC#getFoo"
-	 * for a class named TestController with method getFoo.
 	 */
 	public void setHandlerMethodMappingNamingStrategy(HandlerMethodMappingNamingStrategy<T> namingStrategy) {
 		this.namingStrategy = namingStrategy;
@@ -410,17 +388,23 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
+		/*
+			Match 数组，存储匹配上当前请求的结果。其中，Match 是 AbstractHandlerMethodMapping 的内部类
+		 */
 	    // <1> Match 数组，存储匹配上当前请求的结果
 		// Match 将 将 mapping 和 handlerMethod 封装在一起的对象。
 		List<Match> matches = new ArrayList<>();
 		// 】】】<1.1>优先，基于直接 URL 的 Mapping 们，进行匹配
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
+			// 将当前请求和注册表中的 Mapping 进行匹配。
+			// 若匹配成功，则生成 Mapping 记录，添加到 matches 中
 			addMatchingMappings(directPathMatches, matches, request);
 		}
 		// 】】】<1.2> 其次，扫描注册表的 Mapping 们，进行匹配
 		if (matches.isEmpty()) {
-			// No choice but to go through all mappings...
+			// 将当前请求和注册表中的 Mapping 进行匹配。
+			// 若匹配成功，则生成 Mapping 记录，添加到 matches 中
 			addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
 		}
 
@@ -451,12 +435,15 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 							"Ambiguous handler methods mapped for '" + uri + "': {" + m1 + ", " + m2 + "}");
 				}
 			}
+
             // <2.4> 处理首个 Match 对象
 			// 设置匹配的路径 lookupPath 到请求属性种
 			// 实际上，这个方法，在 RequestMappingInfoHandlerMapping 中，会被重写。详细解析，见 RequestMappingInfoHandlerMapping
 			handleMatch(bestMatch.mapping, lookupPath, request);
+
             // <2.5> 返回首个 Match 对象的 handlerMethod 属性
 			return bestMatch.handlerMethod;
+
         //  <3> 如果匹配不到，则处理不匹配的情况
 		} else {
 			// 目前是空实现
@@ -592,7 +579,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
          * 直接 URL 的映射
          *
          * KEY：直接 URL
-         * VALUE：Mapping 数组
+         * VALUE：【Mapping 数组】
          */
 		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<>();
 
@@ -878,6 +865,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	/**
 	 * A thin wrapper around a matched HandlerMethod and its mapping, for the purpose of
 	 * comparing the best match with a comparator in the context of the current request.
+	 * Match 数组，存储匹配上当前请求的结果。其中，Match 是 AbstractHandlerMethodMapping 的内部类
 	 */
 	private class Match {
 

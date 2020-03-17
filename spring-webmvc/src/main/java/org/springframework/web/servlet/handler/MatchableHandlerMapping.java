@@ -37,11 +37,6 @@ public interface MatchableHandlerMapping extends HandlerMapping {
 	/**
      * 判断请求和指定 `pattern` 路径是否匹配的接口方法
 	 * 返回：请求匹配结果。
-     *
-	 * Determine whether the given request matches the request criteria.
-	 * @param request the current request
-	 * @param pattern the pattern to match
-	 * @return the result from request matching, or {@code null} if none
 	 */
 	@Nullable
 	RequestMatchResult match(HttpServletRequest request, String pattern);

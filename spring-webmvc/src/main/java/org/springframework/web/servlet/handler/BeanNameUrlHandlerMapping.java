@@ -47,6 +47,12 @@ import java.util.List;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see SimpleUrlHandlerMapping
+ * 继承 AbstractDetectingUrlHandlerMapping 抽象类，基于 Bean 的名字来自动探测的 HandlerMapping 实现类。
+ */
+/*
+	BeanNameUrlHandlerMapping与上一节的SimpleUrlHandlerMapping类似，
+	不同之处在于：前者的bean name就当做url，而后者需要配置url-->bean的映射。
+	链接：https://blog.csdn.net/qq_36074096/article/details/77423617
  */
 public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMapping {
 

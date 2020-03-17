@@ -52,6 +52,11 @@ import java.util.function.Predicate;
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @since 3.1
+ * 实现 MatchableHandlerMapping 接口、EmbeddedValueResolverAware 接口，继承 RequestMappingInfoHandlerMapping 抽象类，
+ * 】】】基于 @RequestMapping 注解来构建 RequestMappingInfo 对象。
+ */
+/*
+	有重写 afterPropertiesSet方法
  */
 public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
 		implements MatchableHandlerMapping, EmbeddedValueResolverAware {
@@ -194,9 +199,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * <p>Expects a handler to have either a type-level @{@link Controller}
-	 * annotation or a type-level @{@link RequestMapping} annotation.
+	 * 判断是否为处理器。
 	 */
 	@Override
 	protected boolean isHandler(Class<?> beanType) {
@@ -205,25 +208,22 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	}
 
 	/**
-	 * Uses method and type-level @{@link RequestMapping} annotations to create
-	 * the RequestMappingInfo.
-	 * @return the created RequestMappingInfo, or {@code null} if the method
-	 * does not have a {@code @RequestMapping} annotation.
+	 * 获得方法上的 RequestMappingInfo 对象，基于 @RequestMapping 构造。
 	 * @see #getCustomMethodCondition(Method)
 	 * @see #getCustomTypeCondition(Class)
 	 */
 	@Override
 	@Nullable
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-		// 基于方法上的 @RequestMapping 注解，创建 RequestMappingInfo 对象
+		// <1> 基于方法上的 @RequestMapping 注解，创建 RequestMappingInfo 对象
 	    RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
-		    // 基于类上的 @RequestMapping 注解，合并进去
+		    // <2> 基于类上的 @RequestMapping 注解，合并进去
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
 				info = typeInfo.combine(info);
 			}
-			// 如果有前缀，则设置到 info 中
+			// <3> 如果有前缀，则设置到 info 中
 			String prefix = getPathPrefix(handlerType);
 			if (prefix != null) {
 				info = RequestMappingInfo.paths(prefix).build().combine(info);
@@ -256,8 +256,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	@Nullable
 	private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
 	    // 获得 @RequestMapping 注解
+		// 】】】获得 @RequestMapping 注解。当然，@GetMapping、@PostMapping 等等注解，也可以被扫描到。
 		RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
-		// 如果 element 是类，则获得自定义的条件。目前 getCustomTypeCondition 是空方法，可以无视
+		// 如果 element 是类，则获得自定义的条件。
+		// 【目前 getCustomTypeCondition 是空方法，可以无视】
 		RequestCondition<?> condition = (element instanceof Class ?
 				getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
 		// 基于 @RequestMapping 注解，创建 RequestMappingInfo 对象
@@ -335,6 +337,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		}
 	}
 
+	/*
+		执行匹配。
+	 */
 	@Override
 	public RequestMatchResult match(HttpServletRequest request, String pattern) {
 	    // 创建 RequestMappingInfo 对象

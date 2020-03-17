@@ -330,6 +330,14 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		// 【目前暂无子类实现】。
 		extendInterceptors(this.interceptors);
 
+
+		/*
+			SecurityInterceptor 是拦截器，通过 @Component 注册到 Spring IOC 容器中。
+			因为它是 HandlerInterceptorAdapter 的子类，而不是 MappedInterceptor 的子类，
+			】】】【所以不会被 AbstractHandlerMapping 的 #detectMappedInterceptors(List<HandlerInterceptor> mappedInterceptors) 方法扫描到。】
+			在 MVCConfiguration 的 #addInterceptors(InterceptorRegistry registry) 方法中，
+			我们将 securityInterceptor 拦截器添加到 【InterceptorRegistry】 这个拦截器注册表中。
+		 */
 		/*
 			为什么会扫描 MappedInterceptor 的 Bean 们？详细解析
 			<mvc:interceptors /> 标签」
@@ -337,7 +345,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
        			<mvc:interceptors>下的一个个 <mvc:interceptor>就会被封装成 MappedInterceptor
 
 		 */
-		// <2> 【扫描已注册的 MappedInterceptor 的 Bean 们】，添加到 mappedInterceptors 中
+		// <2> 【扫描已注册的 MappedInterceptor 的 Bean 们（可以是xml和javaconfig)】，添加到 mappedInterceptors 中
 		detectMappedInterceptors(this.adaptedInterceptors);
 		// <3> 将 【interceptors】 初始化成 HandlerInterceptor 类型，添加到【adaptedInterceptors】（mappedInterceptors） 中
 		initInterceptors();
@@ -355,17 +363,18 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	protected void extendInterceptors(List<Object> interceptors) {
 	}
 
+	/*
+		为什么会扫描 MappedInterceptor 的 Bean 们？详细解析
+		<mvc:interceptors /> 标签」
+		】】】探测所有 MappedInterceptor填充 adaptedInterceptors
+			<mvc:interceptors>下的一个个 <mvc:interceptor>就会被封装成 MappedInterceptor
+
+	 */
 	/**
      * 扫描已注册的 MappedInterceptor 的 Bean 们，添加到 mappedInterceptors 中
-     *
-	 * Detect beans of type {@link MappedInterceptor} and add them to the list of mapped interceptors.
-	 * <p>This is called in addition to any {@link MappedInterceptor MappedInterceptors} that may have been provided
-	 * via {@link #setInterceptors}, by default adding all beans of type {@link MappedInterceptor}
-	 * from the current context and its ancestors. Subclasses can override and refine this policy.
-	 * @param mappedInterceptors an empty list to add {@link MappedInterceptor} instances to
 	 */
 	protected void detectMappedInterceptors(List<HandlerInterceptor> mappedInterceptors) {
-        // 扫描已注册的 MappedInterceptor 的 Bean 们，添加到 mappedInterceptors 中
+        // 扫描【已注册的 MappedInterceptor 的 Bean 们（可以是xml】，添加到 mappedInterceptors 中
         // MappedInterceptor 会根据请求路径做匹配，是否进行拦截。
 		mappedInterceptors.addAll(
 				BeanFactoryUtils.beansOfTypeIncludingAncestors(
@@ -475,7 +484,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		if (handler == null) {
 			return null;
 		}
-		// Bean name or resolved handler?
+
         // <4> 如果找到的处理器是 String 类型，则从容器中找到 String 对应的 Bean 类型作为处理器。
 		// 则调用 BeanFactory#getBean(String name) 方法，从容器中找到 String 对应的 Bean 类型作为处理器。
 		if (handler instanceof String) {

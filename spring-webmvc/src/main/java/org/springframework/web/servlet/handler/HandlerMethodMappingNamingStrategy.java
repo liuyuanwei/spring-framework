@@ -40,16 +40,24 @@ import org.springframework.web.method.HandlerMethod;
  * @since 4.1
  * @param <T> the mapping type
  */
+/**
+ * Mapping 命名策略
+ * Handler 的 Method 的 Mapping 的名字生成策略接口
+ * 可能不太好理解，获得 Mapping 的名字。这样，我们就可以根据 Mapping 的名字，获得 Handler 。
+ */
+/*
+	org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMethodMappingNamingStrategy 实现该接口
+	比较好理解，分成两种情况。
+		情况一，如果 Mapping 已经配置名字，则直接返回。例如，@RequestMapping(name = "login", value = "user/login") 注解的方法，
+		它对应的 Mapping 的名字就是 "login" 。
+		情况二，如果 Mapping 未配置名字，则使用使用类名大写 + "#" + 方法名。例如，@RequestMapping(value = "user/login") 注解的方法，
+		假设它所在的类为 UserController ，对应的方法名为 login ，则它对应的 Mapping 的名字就是 USERCONTROLLER#login 。
+ */
 @FunctionalInterface
 public interface HandlerMethodMappingNamingStrategy<T> {
 
 	/**
      * 获得名字
-     *
-	 * Determine the name for the given HandlerMethod and mapping.
-	 * @param handlerMethod the handler method
-	 * @param mapping the mapping
-	 * @return the name
 	 */
 	String getName(HandlerMethod handlerMethod, T mapping);
 

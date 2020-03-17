@@ -61,22 +61,16 @@ public class HandlerMethod {
 	/** Logger that is available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-    /**
-     * Bean 对象
-     */
+    // Bean 对象
 	private final Object bean;
 
 	@Nullable
 	private final BeanFactory beanFactory;
 
-    /**
-     * Bean 的类型
-     */
+    // Bean 的类型
 	private final Class<?> beanType;
 
-    /**
-     * 方法
-     */
+    // 方法
 	private final Method method;
 
     /**

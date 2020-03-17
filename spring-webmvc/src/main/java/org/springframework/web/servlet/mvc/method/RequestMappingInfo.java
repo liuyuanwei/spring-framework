@@ -45,6 +45,13 @@ import java.util.List;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @since 3.1
+ * 实现 RequestCondition 接口，请求匹配信息。
+ *
+ * RequestMappingInfo封装了PatternsRequestCondition,RequestMethodsRequestCondition,ParamsRequestCondition等,
+ * 所以自己不干活,所有的活都是委托给具体的condition处理.
+ *
+ * 先看下封装的RequestCondition吧,之前的文章将的比较细了,不清楚各个类具体是做什么的,可以移步这里
+ * 	http://www.cnblogs.com/leftthen/p/5209946.html
  */
 public final class RequestMappingInfo implements RequestCondition<RequestMappingInfo> {
 
@@ -56,6 +63,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
     /**
      * 请求路径的条件
+	 * 继承 AbstractRequestCondition 抽象类，请求路径条件。
      */
 	private final PatternsRequestCondition patternsCondition;
 
@@ -224,16 +232,24 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	}
 
 	/**
-	 * Checks if all conditions in this request mapping info match the provided request and returns
-	 * a potentially new request mapping info with conditions tailored to the current request.
-	 * <p>For example the returned instance may contain the subset of URL patterns that match to
-	 * the current request, sorted with best matching patterns on top.
+	 * 从当前 RequestMappingInfo 获得匹配的条件。
+	 * 如果匹配，则基于其匹配的条件，创建新的 RequestMappingInfo 对象。
+	 * 如果不匹配，则返回 null 。
 	 * @return a new instance in case all conditions match; or {@code null} otherwise
+	 */
+	/*
+		虽然代码非常长，实际都是调用每个属性对应的 #getMatchingCondition(HttpServletRequest request) 方法，获得其匹配的真正的条件。
 	 */
 	@SuppressWarnings("Duplicates")
     @Override
 	@Nullable
 	public RequestMappingInfo getMatchingCondition(HttpServletRequest request) {
+		/*
+			如果一个 @RequestMapping(value = "user/login") 注解，并未写 RequestMethod 的条件，岂不是会报空？
+			实际上不会。在这种情况下，会创建一个 RequestMethodsRequestCondition 对象，并且在匹配时，直接返回自身。
+
+			也就是说，没有 **RequestMethod** 的条件，一定匹配成功，且结果就是自身 RequestMethodsRequestCondition 对象。
+		 */
 	    // 匹配 methodsCondition、paramsCondition、headersCondition、consumesCondition、producesCondition
 		RequestMethodsRequestCondition methods = this.methodsCondition.getMatchingCondition(request);
 		ParamsRequestCondition params = this.paramsCondition.getMatchingCondition(request);
@@ -264,10 +280,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	}
 
 	/**
-	 * Compares "this" info (i.e. the current instance) with another info in the context of a request.
-	 * <p>Note: It is assumed both instances have been obtained via
-	 * {@link #getMatchingCondition(HttpServletRequest)} to ensure they have conditions with
-	 * content relevant to current request.
+	 * 比较优先级
+	 */
+	/*
+		实际都是按照优先级，逐个调用每个属性对应的 #compareTo(RequestMethodsRequestCondition other, HttpServletRequest request) 方法，直到比到不相等。
 	 */
 	@Override
 	public int compareTo(RequestMappingInfo other, HttpServletRequest request) {

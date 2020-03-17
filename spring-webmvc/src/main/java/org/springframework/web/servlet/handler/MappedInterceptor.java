@@ -41,12 +41,12 @@ import javax.servlet.http.HttpServletResponse;
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @since 3.0
- * 实现 HandlerInterceptor 接口，支持xml文件中地址匹配的 HandlerInterceptor 实现类。
+ * 实现 HandlerInterceptor 接口，【支持地址匹配】的 HandlerInterceptor 实现类。
  * 关于 MappedInterceptor 拦截器类，会根据请求路径做匹配，是否进行拦截。
  *
- * 这尼玛不就是装饰器模式吗
+ * 】】】这尼玛不就是装饰器模式吗
  *
- * matches 方法 ，判断路径是否匹配。】】】
+ * 】】】matches 方法 ，判断路径是否匹配。
  * preHandle、postHandle、afterCompletion等方法：直接调用拦截器对应的方法。
  *
  */
@@ -61,7 +61,8 @@ import javax.servlet.http.HttpServletResponse;
 	</mvc:interceptors>
 
 	每一个 <mvc:interceptor /> 标签，会被 org.springframework.web.servlet.config.InterceptorsBeanDefinitionParser
- 	解析成 「4.1 MappedInterceptor」 对象，注册到 Spring IOC 容器中。
+ 	解析成 「4.1 MappedInterceptor」 对象，【注册到 Spring IOC 容器中】。
+
  	在 AbstractHandlerMapping 的 #detectMappedInterceptors(List<HandlerInterceptor> mappedInterceptors) 方法中，
  	【会扫描 MappedInterceptor Bean】
  */

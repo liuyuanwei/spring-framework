@@ -50,6 +50,13 @@ import org.springframework.web.util.pattern.PathPattern;
  * @author Juergen Hoeller
  * @author Brian Clozel
  * @since 5.0
+ * 一共有五个子类，分成两条线。
+	AbstractUrlHandlerMapping <= SimpleUrlHandlerMapping <= WebSocketHandlerMapping 。
+	AbstractUrlHandlerMapping <= AbstractDetectingUrlHandlerMapping <= BeanNameUrlHandlerMapping 。
+ */
+/*
+	实现 MatchableHandlerMapping 接口，继承 AbstractHandlerMapping 抽象类，
+	以 URL 作为 Handler 的 HandlerMapping 抽象类，提供 Handler 的获取、注册等等通用的骨架方法。
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
@@ -58,16 +65,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 	private final Map<PathPattern, Object> handlerMap = new LinkedHashMap<>();
 
 
-	/**
-	 * Set whether to lazily initialize handlers. Only applicable to
-	 * singleton handlers, as prototypes are always lazily initialized.
-	 * Default is "false", as eager initialization allows for more efficiency
-	 * through referencing the controller objects directly.
-	 * <p>If you want to allow your controllers to be lazily initialized,
-	 * make them "lazy-init" and set this flag to true. Just making them
-	 * "lazy-init" will not work, as they are initialized through the
-	 * references from the handler mapping in this case.
-	 */
+
 	public void setLazyInitHandlers(boolean lazyInitHandlers) {
 		this.lazyInitHandlers = lazyInitHandlers;
 	}

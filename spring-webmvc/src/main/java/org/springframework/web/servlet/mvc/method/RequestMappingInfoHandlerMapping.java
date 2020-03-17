@@ -74,7 +74,8 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	}
 
 	/**
-	 * Get the URL path patterns associated with this {@link RequestMappingInfo}.
+	 * 获得 Mapping 对应的请求路径集合。
+	 * 该方法，在 「3.2.2 register」 中，看到对该方法的调用。
 	 */
 	@Override
 	protected Set<String> getMappingPathPatterns(RequestMappingInfo info) {
@@ -82,10 +83,9 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	}
 
 	/**
-	 * Check if the given RequestMappingInfo matches the current request and
-	 * return a (potentially new) instance with conditions that match the
-	 * current request -- for example with a subset of URL patterns.
-	 * @return an info in case of a match; or {@code null} otherwise.
+	 * 获得请求对应的 RequestMappingInfo 对象
+	 *
+	 * 该方法，在 「3.6.1 lookupHandlerMethod」 中，看到对该方法的调用。
 	 */
 	@Override
 	protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpServletRequest request) {
@@ -101,7 +101,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	}
 
 	/**
-	 * Expose URI template variables, matrix variables, and producible media types in the request.
+	 * 覆写父类的方法，设置更多的属性，到请求中。
 	 * @see HandlerMapping#URI_TEMPLATE_VARIABLES_ATTRIBUTE
 	 * @see HandlerMapping#MATRIX_VARIABLES_ATTRIBUTE
 	 * @see HandlerMapping#PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE
@@ -174,12 +174,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	}
 
 	/**
-	 * Iterate all RequestMappingInfo's once again, look if any match by URL at
-	 * least and raise exceptions according to what doesn't match.
-	 * @throws HttpRequestMethodNotSupportedException if there are matches by URL
-	 * but not by HTTP method
-	 * @throws HttpMediaTypeNotAcceptableException if there are matches by URL
-	 * but not by consumable/producible media types
+	 * 覆写父类方法，处理无匹配 Mapping 的情况。主要用途是，给出为什么找不到 Mapping 的原因。
 	 */
 	@Override
 	protected HandlerMethod handleNoMatch(
