@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
  * @see org.springframework.web.HttpRequestHandler
  * @see LastModified
  * @see SimpleControllerHandlerAdapter
+ * 实现 HandlerAdapter 接口，基于 org.springframework.web.HttpRequestHandler 的 HandlerAdapter 实现类。
  */
 public class HttpRequestHandlerAdapter implements HandlerAdapter {
 

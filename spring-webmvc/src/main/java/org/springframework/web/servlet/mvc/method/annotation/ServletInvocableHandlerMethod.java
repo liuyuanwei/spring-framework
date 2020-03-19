@@ -99,7 +99,12 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-	    // 执行调用
+
+		/*
+			调用父类 InvocableHandlerMethod 的 #invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... providedArgs) 方法，
+			执行调用。
+		 */
+	    // <x> 执行调用
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
 		// 设置响应状态码
 		setResponseStatus(webRequest);

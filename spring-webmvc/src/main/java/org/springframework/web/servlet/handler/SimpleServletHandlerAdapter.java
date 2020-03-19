@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
  * @see javax.servlet.http.HttpServlet
  * @see SimpleServletPostProcessor
  * @see org.springframework.web.servlet.mvc.ServletWrappingController
+ * 现 HandlerAdapter 接口，基于 javax.servlet.Servlet 的 HandlerAdapter 实现类。
  */
 public class SimpleServletHandlerAdapter implements HandlerAdapter {
 

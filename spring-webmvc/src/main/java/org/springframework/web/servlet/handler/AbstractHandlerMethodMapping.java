@@ -270,7 +270,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
 
 			/*
-				getMappingForMethod(Method method, Class<?> handlerType) 抽象方法，获得方法的 Mapping 信息
+				getMappingForMethod(Method method, Class<?> handlerType) 抽象方法，【获得方法的 Mapping 信息】
 				该方法在 RequestMappingHandlerMapping 类中实现。详细解析
 			 */
 			// 3> 获得匹配的方法的集合
@@ -385,6 +385,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @return the best-matching handler method, or {@code null} if no match
 	 * @see #handleMatch(Object, String, HttpServletRequest)
 	 * @see #handleNoMatch(Set, String, HttpServletRequest)
+	 *
+	 * <1.1> 处，优先，基于直接 URL 的 Mapping 们，进行匹配。
+		<1.2> 处，其次，基于扫描注册表的 Mapping 们，进行匹配。
 	 */
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {

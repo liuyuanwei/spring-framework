@@ -52,50 +52,16 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface HandlerAdapter {
 
-	/**
-     * 是否支持该处理器
-     *
-	 * Given a handler instance, return whether or not this {@code HandlerAdapter}
-	 * can support it. Typical HandlerAdapters will base the decision on the handler
-	 * type. HandlerAdapters will usually only support one handler type each.
-	 * <p>A typical implementation:
-	 * <p>{@code
-	 * return (handler instanceof MyHandler);
-	 * }
-	 * @param handler handler object to check
-	 * @return whether or not this object can use the given handler
-	 */
+	// 是否支持该处理器
 	boolean supports(Object handler);
 
-	/**
-     * 执行处理器，返回 ModelAndView 结果
-     *
-	 * Use the given handler to handle this request.
-	 * The workflow that is required may vary widely.
-	 * @param request current HTTP request
-	 * @param response current HTTP response
-	 * @param handler handler to use. This object must have previously been passed
-	 * to the {@code supports} method of this interface, which must have
-	 * returned {@code true}.
-	 * @throws Exception in case of errors
-	 * @return a ModelAndView object with the name of the view and the required
-	 * model data, or {@code null} if the request has been handled directly
-	 */
+	// 执行处理器，返回 ModelAndView 结果
 	@Nullable
 	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
 
 	/**
      * 返回请求的最新更新时间。
-     *
      * 如果不支持该操作，则返回 -1 即可
-     *
-	 * Same contract as for HttpServlet's {@code getLastModified} method.
-	 * Can simply return -1 if there's no support in the handler class.
-	 * @param request current HTTP request
-	 * @param handler handler to use
-	 * @return the lastModified value for the given handler
-	 * @see javax.servlet.http.HttpServlet#getLastModified
-	 * @see org.springframework.web.servlet.mvc.LastModified#getLastModified
 	 */
 	long getLastModified(HttpServletRequest request, Object handler);
 

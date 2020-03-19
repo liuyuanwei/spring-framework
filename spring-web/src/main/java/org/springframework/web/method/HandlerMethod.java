@@ -56,6 +56,11 @@ import java.util.List;
  * 对处理器的方法 进行封装的类
  * 实际上，HandlerMethod 是 handler + method 的组合，一个对象的某个方法。
  */
+/*
+	org.springframework.web.method.support.InvocableHandlerMethod ，继承 HandlerMethod 类，可 invoke 调用的 HandlerMethod 实现类。
+
+	😈 也就是说，HandlerMethod 只提供了处理器的方法的基本信息，不提供调用逻辑。
+ */
 public class HandlerMethod {
 
 	/** Logger that is available to subclasses. */

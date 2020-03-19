@@ -47,6 +47,9 @@ import java.util.stream.IntStream;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ * org.springframework.web.method.support.InvocableHandlerMethod ，继承 HandlerMethod 类，可 invoke 调用的 HandlerMethod 实现类。
+
+😈 也就是说，HandlerMethod 只提供了处理器的方法的基本信息，不提供调用逻辑。
  */
 public class InvocableHandlerMethod extends HandlerMethod {
 
@@ -127,16 +130,19 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 * @return the raw value returned by the invoked method
 	 * @throws Exception raised if no suitable argument resolver can be found,
 	 * or if the method raised an exception
+	 *
+	 * 执行请求
 	 */
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 	    // 解析参数
+		// 解析方法的参数值们。
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
-		// 执行调用
+		// 】】】执行调用
 		return doInvoke(args);
 	}
 
@@ -218,7 +224,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	    // 设置方法为可访问
 		ReflectionUtils.makeAccessible(getBridgedMethod());
 		try {
+			/*
+				InvocableHandlerMethod 是 HandlerMethod 的子类，所以通过 HandlerMethod 的 #getBridgedMethod() 方法，可以获得对应的 @RequestMapping 注解的方法。
+			 */
 		    // 执行调用
+			// 反射调用 @RequestMapping 注解的方法
 			return getBridgedMethod().invoke(getBean(), args);
 		} catch (IllegalArgumentException ex) {
 			assertTargetBean(getBridgedMethod(), getBean(), args);
