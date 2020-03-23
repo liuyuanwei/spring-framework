@@ -435,8 +435,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			【如果解析的 class 不为空，则会将该 BeanDefinition 进行设置到 mbdToUse 中。
 			这样做的主要目的是，以为动态解析的 class 是无法保存到共享的 BeanDefinition 中。】
 		 */
-		// 解析指定 BeanDefinition 的 class
-        // <1> 确保此时的 bean 已经被解析了
+        // <1> 解析指定 BeanDefinition 的 class
         // 如果获取的class 属性不为null，则克隆该 BeanDefinition
         // 主要是因为该动态解析的 class 无法保存到到共享的 BeanDefinition
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
@@ -450,8 +449,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			/*
 				大家还记得 lookup-method 和 replace-method 这两个配置功能？
 				知道解析过程其实就是讲这两个配置存放在 BeanDefinition 中的 methodOverrides 属性中。
-				我们知道在 bean 实例化的过程中如果检测到存在 methodOverrides ，则会动态地位为当前 bean 生成代理并使用对应的拦截器为 bean 做增强处理
 
+				我们知道在 bean 实例化的过程中如果检测到存在 methodOverrides ，
+				则会动态地位为当前 bean 生成代理并使用对应的拦截器为 bean 做增强处理
 			 */
             // <2> 验证和准备覆盖方法
 			mbdToUse.prepareMethodOverrides();
@@ -464,13 +464,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			/*
 				#resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) 方法的作用，
 				是给 BeanPostProcessors 后置处理器返回一个代理对象的机会。
-				其实在调用该方法之前 Spring 一直都没有创建 bean ，那么这里返回一个 bean 的代理类有什么作用呢？作用体现在后面的 if 判断
+				【其实在调用该方法之前 Spring 一直都没有创建 bean 】，
+				那么这里返回一个 bean 的代理类有什么作用呢？
+					作用体现在后面的 if 判断
 			 */
-            // <3> 实例化的前置处理
+            // <3> 】】】实例化的前置处理
             // 给 BeanPostProcessors 一个机会用来返回一个代理类而不是真正的类实例
-			// 如果代理对象不为空，则直接返回代理对象
             // 】】】AOP 的功能就是基于这个地方，参见 AbstractAutoProxyCreator
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+			// 如果代理对象不为空，则直接返回代理对象
 			if (bean != null) {
 				return bean;
 			}
@@ -497,17 +499,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 	}
 
-	/**
-	 * #doCreateBean(...) 方法，完成 bean 的创建和初始化工作，内容太多，这里就只列出整体思路。下文开始，将该方法进行拆分进行详细讲解，分布从以下几个方面进行阐述：
-	 *
-	 *	 #createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) 方法，实例化 bean 。
-	 *	 循环依赖的处理。
-	 *	 #populateBean(String beanName, RootBeanDefinition mbd, BeanWrapper bw) 方法，进行属性填充。
-	 *	 #initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) 方法，初始化 Bean 。
-	 */
+
 	/*
 		#doCreateBean(...) 方法，主要用于完成 bean 的创建和初始化工作，我们可以将其分为四个过程：
-
 			#createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) 方法，实例化 bean 。
 			#循环依赖的处理。
 			#populateBean(String beanName, RootBeanDefinition mbd, BeanWrapper bw) 方法，进行属性填充。
@@ -516,27 +510,29 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final @Nullable Object[] args)
 			throws BeanCreationException {
 
-		// Instantiate the bean.
         // BeanWrapper 是对 Bean 的包装，其接口中所定义的功能很简单包括设置获取被包装的对象，获取被包装 bean 的属性描述器
 		BeanWrapper instanceWrapper = null;
+
         // <1> 单例模型，则从未完成的 FactoryBean 缓存中删除
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 
 		/*
-			#createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) 方法，用于实例化 Bean 对象。它会根据不同情况，选择不同的实例化策略来完成 Bean 的初始化，主要包括
-			Supplier 回调：#obtainFromSupplier(final String beanName, final RootBeanDefinition mbd) 方法。
-			工厂方法初始化：#instantiateUsingFactoryMethod(String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) 方法。
-			构造函数自动注入初始化(可以理解为带有参数的构造方法，来初始化 Bean 对象。)：#autowireConstructor(final String beanName, final RootBeanDefinition mbd, Constructor<?>[] chosenCtors, final Object[] explicitArgs) 方法。
-				带有参数的构造方法有两种方式，反射创建 Bean 对象和CGLIB 创建 Bean 对象
-			默认构造函数注入：#instantiateBean(final String beanName, final RootBeanDefinition mbd) 方法。
+			#createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) 方法，用于实例化 Bean 对象。
+			它会根据不同情况，选择不同的实例化策略来完成 Bean 的初始化，主要包括
+				Supplier 回调：#obtainFromSupplier(final String beanName, final RootBeanDefinition mbd) 方法。
+				工厂方法初始化：#instantiateUsingFactoryMethod(String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) 方法。
+				构造函数自动注入初始化(可以理解为带有参数的构造方法，来初始化 Bean 对象。)：#autowireConstructor(final String beanName, final RootBeanDefinition mbd, Constructor<?>[] chosenCtors, final Object[] explicitArgs) 方法。
+					带有参数的构造方法有两种方式，反射创建 Bean 对象和CGLIB 创建 Bean 对象
+				默认构造函数注入：#instantiateBean(final String beanName, final RootBeanDefinition mbd) 方法。
 		 */
 		// 】】】<2> 使用合适的实例化策略来创建新的实例：【工厂方法、构造函数自动注入、简单初始化】
 		// 实例化 bean ，【主要是将 BeanDefinition 转换为 org.springframework.beans.BeanWrapper 对象。】
 		if (instanceWrapper == null) {
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+
         // 包装的实例对象
 		final Object bean = instanceWrapper.getWrappedInstance();
         // 包装的实例对象的类型
@@ -545,7 +541,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			mbd.resolvedTargetType = beanType;
 		}
 
-		// Allow post-processors to modify the merged bean definition.
         // <3> 判断是否有后置处理
         // 如果有后置处理，则允许后置处理修改 BeanDefinition
 		synchronized (mbd.postProcessingLock) {
@@ -572,7 +567,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
-            // 提前将创建的 bean 实例加入到 singletonFactories 中
+            // 提前将创建的 bean 实例加入【到 singletonFactories 中】
             // 这里是为了后期避免循环依赖
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
@@ -588,7 +583,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // <5> 对 bean 进行填充，将各个属性值注入，其中，可能存在依赖于其他 bean 的属性
             // 】】】则会递归初始依赖 bean
 			populateBean(beanName, mbd, instanceWrapper);
-
 
 
             // <6> 】】】调用初始化方法，初始化 bean 。

@@ -552,7 +552,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		int countBefore = getRegistry().getBeanDefinitionCount();
 		/*
 			创建 XmlReaderContext 对象, 解析器的当前上下文，
-			包括目标注册表(XmlBeanDefinitionReader)和被解析的Resource资源。它是根据 Resource 来创建的，
+			】】】包括目标注册表(XmlBeanDefinitionReader)和被解析的Resource资源。它是根据 Resource 来创建的，
 		 */
 		/*
 			从给定的 Document 对象中解析定义的 BeanDefinition 并将他们注册到注册表中。方法接收两个参数：

@@ -502,7 +502,7 @@ public class BeanDefinitionParserDelegate {
 		try {
 			/*
 				createBeanDefinition
-					该方法主要是，创建 GenericBeanDefinition 对象，并设置 parentName、className、beanClass 属性。
+					该方法主要是，【创建 GenericBeanDefinition 对象】，并设置 parentName、className、beanClass 属性。
 			 */
             // 】】】创建用于承载属性的 AbstractBeanDefinition 实例
 			// ！！！委托 BeanDefinitionReaderUtils 创建AbstractBeanDefinition对象

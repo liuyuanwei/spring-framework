@@ -326,7 +326,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				/*
 					】】】】】】】】
 					每个 Bean 都不是单独工作的，它会依赖其他 Bean，其他 Bean 也会依赖它。
-					对于依赖的 Bean ，它会优先加载，所以，在 Spring 的加载顺序中，在初始化某一个 Bean 的时候，首先会初始化这个 Bean 的依赖。
+					【对于依赖的 Bean ，它会优先加载】，所以，在 Spring 的加载顺序中，在初始化某一个 Bean 的时候，首先会初始化这个 Bean 的依赖。
 				 */
                 // <7> 处理所依赖的 bean
 				String[] dependsOn = mbd.getDependsOn();
@@ -341,7 +341,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         // <2> 缓存依赖调用 TODO 芋艿
 						registerDependentBean(dep, beanName);
 						try {
-                            // <3> 递归处理依赖 Bean
+                            // 】】】<3> 递归处理依赖 Bean
 							getBean(dep);
 						} catch (NoSuchBeanDefinitionException ex) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
@@ -1717,11 +1717,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
         // 到这里我们就有了一个 Bean 实例，当然该实例可能是会是是一个正常的 bean 又或者是一个 FactoryBean
-        // 如果是 FactoryBean，我我们则创建该 Bean
+        // 如果是 FactoryBean，我们则创建该 Bean
+
 
 		/*
-			如果 beanInstance 不为 FactoryBean 类型或者 name 也不是与工厂相关的，则直接返回 beanInstance 这个 Bean 对象。
 			【这里主要是对非 FactoryBean 类型处理】。
+			如果 beanInstance 不为 FactoryBean 类型或者 name 也不是与工厂相关的，
+			则直接返回 beanInstance 这个 Bean 对象。
 		 */
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;

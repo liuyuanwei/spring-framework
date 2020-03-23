@@ -266,7 +266,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	/*
 		其实，这个过程并没有真正创建 Bean 对象，仅仅只是做了一部分准备和预处理步骤。
-		真正获取单例 bean 的方法，其实是由 <3> 处的 singletonFactory.getObject() 这部分代码块来实现，而 singletonFactory 由回调方法产生。
+		真正获取单例 bean 的方法，其实是由 <3> 处的 singletonFactory.getObject() 这部分代码块来实现，
+		而 singletonFactory 由回调方法产生。
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
@@ -286,7 +287,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
                 // <2> 加载前置处理
+				// 添加到singletonsCurrentlyInCreation中，表示正在创建中
 				beforeSingletonCreation(beanName);
+
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
 				if (recordSuppressedExceptions) {
@@ -316,6 +319,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 						this.suppressedExceptions = null;
 					}
                     // <4> 后置处理
+					// 创建完成 从singletonsCurrentlyInCreation中移除
 					afterSingletonCreation(beanName);
 				}
                 // <5> 加入缓存中
