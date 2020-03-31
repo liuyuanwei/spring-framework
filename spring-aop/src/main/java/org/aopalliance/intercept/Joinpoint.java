@@ -36,30 +36,22 @@ import java.lang.reflect.AccessibleObject;
  *
  * @author Rod Johnson
  * @see Interceptor
+ * 连接点
  */
 public interface Joinpoint {
 
-	/**
-	 * Proceed to the next interceptor in the chain.
-	 * <p>The implementation and the semantics of this method depends
-	 * on the actual joinpoint type (see the children interfaces).
-	 * @return see the children interfaces' proceed definition
-	 * @throws Throwable if the joinpoint throws an exception
+	/*
+		这个 Joinpoint 接口中，proceed 方法是核心，该方法用于执行拦截器逻辑。
+		关于拦截器这里简单说一下吧，以前置通知拦截器为例。在执行目标方法前，该拦截器首先会执行前置通知逻辑，
+		如果拦截器链中还有其他的拦截器，则继续调用下一个拦截器逻辑。直到拦截器链中没有其他的拦截器后，再去调用目标方法。关于拦截器这里先说这么多
 	 */
+
+	/** 用于执行拦截器链中的下一个拦截器逻辑 */
 	Object proceed() throws Throwable;
 
-	/**
-	 * Return the object that holds the current joinpoint's static part.
-	 * <p>For instance, the target object for an invocation.
-	 * @return the object (can be null if the accessible object is static)
-	 */
+
 	Object getThis();
 
-	/**
-	 * Return the static part of this joinpoint.
-	 * <p>The static part is an accessible object on which a chain of
-	 * interceptors are installed.
-	 */
 	AccessibleObject getStaticPart();
 
 }
