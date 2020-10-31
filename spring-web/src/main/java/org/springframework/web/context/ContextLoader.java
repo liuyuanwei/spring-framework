@@ -312,7 +312,9 @@ public class ContextLoader {
 		【就使用 XmlWebApplicationContext 类】。😈 【一般情况下，我们也不会主动指定】
 	 */
 	/*
-		分成两种情况。前者，从 ServletContext 配置的 context 类；后者，从 ContextLoader.properties 配置的 context 类。
+		分成两种情况。
+			前者，从 ServletContext 配置的 context 类；
+			后者，从 ContextLoader.properties 配置的 context 类。
 		默认情况下，我们不会主动在 ServletContext 配置的 context 类，
 		【所以基本是使用 ContextLoader.properties 配置的 context 类，即 XmlWebApplicationContext 类】。
 	 */

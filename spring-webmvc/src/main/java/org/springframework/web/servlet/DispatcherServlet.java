@@ -1160,7 +1160,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
 				mv = ((ModelAndViewDefiningException) exception).getModelAndView();
             // 情况二，处理异常，生成 ModelAndView 对象
-				// 有使用到 HandlerExceptionResolver
+				// 】】】有使用到 HandlerExceptionResolver
 			} else {
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
 				mv = processHandlerException(request, response, handler, exception);

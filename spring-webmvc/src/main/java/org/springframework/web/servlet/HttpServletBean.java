@@ -123,6 +123,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	public ConfigurableEnvironment getEnvironment() {
 	    // 如果 environment 为空，主动创建
 		if (this.environment == null) {
+			// 创建StandardServletEnvironment
 			this.environment = createEnvironment();
 		}
 		return this.environment;
