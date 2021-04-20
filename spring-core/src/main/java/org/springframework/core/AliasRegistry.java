@@ -16,6 +16,9 @@
 
 package org.springframework.core;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Common interface for managing aliases. Serves as super-interface for
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}.
@@ -26,7 +29,12 @@ package org.springframework.core;
  */
 public interface AliasRegistry {
 
-	// 注册别名
+	/*
+		key: alias
+		value: beanName
+		private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
+	*/
+	// 注册别名 alias 和 beanName 的映射
 	void registerAlias(String name, String alias);
 
 	// 移除别名

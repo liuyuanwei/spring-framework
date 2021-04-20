@@ -165,8 +165,7 @@ public abstract class BeanDefinitionReaderUtils {
 			BeanDefinition 的注册，由接口 org.springframework.beans.factory.support.BeanDefinitionRegistry 定义。
 			DefaultListableBeanFactory实现了BeanDefinitionRegistry
 		 */
-        // 注册 beanName
-		// 通过 beanName 注册 BeanDefinition 。
+		// 注册 beanName——》BeanDefinition 的映射。
 		String beanName = definitionHolder.getBeanName();
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition()); // DefaultListableBeanFactory.java
 
@@ -175,7 +174,7 @@ public abstract class BeanDefinitionReaderUtils {
 			调用 BeanDefinitionRegistry 的 #registerAlias(String name, String alias) 方法，注册 alias 和 beanName 的映射关系。
 		 */
         // 注册 alias
-		// 然后，再通过注册别名 alias 和 beanName 的映射。
+		// 再通过注册别名 beanName 和 每一个alias 的映射。
 		String[] aliases = definitionHolder.getAliases();
 		if (aliases != null) {
 			for (String alias : aliases) {

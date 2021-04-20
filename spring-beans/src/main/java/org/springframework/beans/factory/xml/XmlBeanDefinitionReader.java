@@ -331,7 +331,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		/*
 			为什么需要这么做呢？
 				答案在 "Detected cyclic loading" ，
-				避免一个 EncodedResource 在加载时，还没加载完成，又加载自身，从而导致死循环。
+				避免一个 EncodedResource 在加载时，还没加载完成，又加载自身，【从而导致死循环】。
 		 */
         // 获取已经加载过的资源
 		// 然后将 encodedResource 加入其中，如果 resourcesCurrentlyBeingLoaded 中已经存在该资源，则抛出 BeanDefinitionStoreException 异常。
@@ -347,6 +347,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             // 从 EncodedResource 获取封装的 Resource ，并从 Resource 中获取其中的 InputStream
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
+				// InputStream 封装成 InputSource
 				InputSource inputSource = new InputSource(inputStream);
 				if (encodedResource.getEncoding() != null) { // 设置编码
 					inputSource.setEncoding(encodedResource.getEncoding());
@@ -404,11 +405,15 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
-            // 】】】获取 XML Document 实例
+
+			/*
+				我觉得装载部分应该是把Resource装载成Document，不是yudao说的装载成BeanDifinition
+			 */
+
+			// 】】】获取 XML Document 实例
 			Document doc = doLoadDocument(inputSource, resource);
             // 根据 Document 实例，注册 Bean 信息
 			// 获取 XML Document 对象后，会根据该Document对象和 Resource 资源对象调用 registerBeanDefinitions(Document doc, Resource resource) 方法，
-			// 【开始注册 BeanDefinitions 之旅】
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -546,18 +551,17 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			创建 BeanDefinitionDocumentReader 对象，
 			BeanDefinitionDocumentReader 有且只有一个默认实现类 DefaultBeanDefinitionDocumentReader
 		 */
-		// 】】】BeanDefinitionDocumentReader 对象定义读取 Document 并注册 BeanDefinition 功能
+		// BeanDefinitionDocumentReader 【对象定义读取 Document 并注册 BeanDefinition 功能】
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 获取已注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
+
 		/*
-			创建 XmlReaderContext 对象, 解析器的当前上下文，
-			】】】包括目标注册表(XmlBeanDefinitionReader)和被解析的Resource资源。它是根据 Resource 来创建的，
-		 */
-		/*
+			创建 XmlReaderContext 对象, xml解析器的当前上下文，
 			从给定的 Document 对象中解析定义的 BeanDefinition 并将他们注册到注册表中。方法接收两个参数：
-				doc 方法参数：待解析的 Document 对象。
-				readerContext 方法，解析器的当前上下文，包括目标注册表和被解析的资源。它是根据 Resource 来创建的
+				doc 方法参数：【待解析的 Document 对象】。
+				XmlReaderContext，解析器的当前上下文，
+					【包括目标注册表(XmlBeanDefinitionReader)和被解析的资源Resource】。它是根据 Resource 来创建的
 		 */
 		// 】】】注册 BeanDefinition们
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));

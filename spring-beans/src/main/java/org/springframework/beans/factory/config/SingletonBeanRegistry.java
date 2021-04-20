@@ -34,16 +34,20 @@ import org.springframework.lang.Nullable;
  */
 public interface SingletonBeanRegistry {
 
+	// 注册单例bean
 	void registerSingleton(String beanName, Object singletonObject);
 
+	// 获取单例bean
 	@Nullable
 	Object getSingleton(String beanName);
 
+	// 是否包含单例bean
 	boolean containsSingleton(String beanName);
 
+	// 单例bean名数组
 	String[] getSingletonNames();
 
-
+	// 单例bean数量
 	int getSingletonCount();
 
 	Object getSingletonMutex();

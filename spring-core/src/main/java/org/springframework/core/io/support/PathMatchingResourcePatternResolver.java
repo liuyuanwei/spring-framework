@@ -33,8 +33,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
 /**
- * 为 ResourcePatternResolver 最常用的子类
- * 它除了支持 ResourceLoader 和 ResourcePatternResolver 新增的 "classpath*:" 前缀外，还支持 Ant 风格的路径匹配模式。
+
  *
  * A {@link ResourcePatternResolver} implementation that is able to resolve a
  * specified resource location path into one or more matching Resources.

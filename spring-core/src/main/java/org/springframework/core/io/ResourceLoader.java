@@ -20,7 +20,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ResourceUtils;
 
 /**
- * Spring 资源加载的统一抽象，具体的资源加载则由相应的实现类来完成，所以我们可以将 ResourceLoader 称作为统一资源定位器。
+ * Spring 资源加载的统一抽象，具体的资源加载则由相应的实现类来完成，
+ * 所以我们可以将 ResourceLoader 称作为统一资源定位器。
  *
  * From 《Spring 源码深度解析》：定义资源加载器，主要应用于根据给定的资源文件地址，返回对应的 Resource 。
  *
@@ -48,6 +49,8 @@ import org.springframework.util.ResourceUtils;
  * ResourceLoader，定义资源加载器，【主要应用于根据给定的资源文件地址，返回对应的 Resource 】。
  *
  * Resource getResource(String location);
+ *
+ * DefaultResourceLoader：与 AbstractResource 相似，DefaultResourceLoader 是 ResourceLoader 的默认实现。
  */
 public interface ResourceLoader {
 
@@ -67,7 +70,7 @@ public interface ResourceLoader {
 	Resource getResource(String location);
 
 	/**
-     * 返回 ClassLoader 实例，对于想要获取 ResourceLoader 使用的 ClassLoader 用户来说，可以直接调用该方法来获取。
+     * 返回 ClassLoader 实例，【对于想要获取 ResourceLoader 使用的 ClassLoader 用户来说，可以直接调用该方法来获取】。
      * 在分析 Resource 时，提到了一个类 ClassPathResource ，这个类是可以根据指定的 ClassLoader 来加载资源的。
 	 * Expose the ClassLoader used by this ResourceLoader.
 	 * <p>Clients which need to access the ClassLoader directly can do so

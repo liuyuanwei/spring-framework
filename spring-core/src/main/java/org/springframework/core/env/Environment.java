@@ -67,7 +67,7 @@ package org.springframework.core.env;
  * @see org.springframework.context.ConfigurableApplicationContext#getEnvironment
  * @see org.springframework.context.ConfigurableApplicationContext#setEnvironment
  * @see org.springframework.context.support.AbstractApplicationContext#createEnvironment
- * 表示当前应用程序正在运行的环境
+ * 【表示当前应用程序正在运行的环境】
  */
 /*
 	应用程序的环境有两个关键方面：profile 和 properties。
@@ -79,7 +79,7 @@ package org.springframework.core.env;
 	是确定哪些【配置文件】（如果有）当前处于活动状态，以及默认情况下【哪些配置文件】（如果有）应处于活动状态。
 
 	properties 在几乎所有应用程序中都发挥着重要作用，
-	并且有多种来源：属性文件，JVM 系统属性，系统环境变量，JNDI，servlet 上下文参数，ad-hoc 属性对象，映射等。
+		【并且有多种来源：属性文件，JVM 系统属性，系统环境变量，JNDI，servlet 上下文参数，ad-hoc 属性对象，映射等。】
 
 	同时Environment继承 PropertyResolver 接口，
 	所以与属性相关的 Environment 对象其主要是为用户提供方便的服务接口，用于配置属性源和从中属性源中解析属性。
@@ -102,18 +102,6 @@ public interface Environment extends PropertyResolver {
 	String[] getDefaultProfiles();
 
 	/**
-	 * Return whether one or more of the given profiles is active or, in the case of no
-	 * explicit active profiles, whether one or more of the given profiles is included in
-	 * the set of default profiles. If a profile begins with '!' the logic is inverted,
-	 * i.e. the method will return {@code true} if the given profile is <em>not</em> active.
-	 * For example, {@code env.acceptsProfiles("p1", "!p2")} will return {@code true} if
-	 * profile 'p1' is active or 'p2' is not active.
-	 * @throws IllegalArgumentException if called with zero arguments
-	 * or if any profile is {@code null}, empty, or whitespace only
-	 * @see #getActiveProfiles
-	 * @see #getDefaultProfiles
-	 * @see #acceptsProfiles(Profiles)
-	 * @deprecated as of 5.1 in favor of {@link #acceptsProfiles(Profiles)}
 	 */
 	@Deprecated
 	boolean acceptsProfiles(String... profiles);

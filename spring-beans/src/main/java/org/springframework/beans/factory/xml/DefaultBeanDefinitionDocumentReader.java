@@ -93,7 +93,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	@Override
 	public void registerBeanDefinitions(Document doc, XmlReaderContext readerContext) {
 		this.readerContext = readerContext;
-		// doc.getDocumentElement() 获得 XML Document Root Element
+		// doc.getDocumentElement() 获得 XML Document 【Root Element】
         // 执行注册 BeanDefinition
 		doRegisterBeanDefinitions(doc.getDocumentElement());
 	}
@@ -120,16 +120,17 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Register each bean definition within the given root {@code <beans/>} element.
 	 */
 	@SuppressWarnings("deprecation")  // for Environment.acceptsProfiles(String...)
-	protected void doRegisterBeanDefinitions(Element root) {
+	protected void doRegisterBeanDefinitions(Element root) { // root——》 XML Document 【Root Element】
 
         // 记录老的 BeanDefinitionParserDelegate 对象
 		// 】】】BeanDefinitionParserDelegate 是一个重要的类，它负责解析 BeanDefinition
 		BeanDefinitionParserDelegate parent = this.delegate;
 
 		// <1> 创建 BeanDefinitionParserDelegate 对象，并进行设置到 delegate
-		// 】】】 delegate里面组合了XmlReaderContext（继承了ReaderConntext)
+		// 】】】 delegate里面组合了XmlReaderContext（继承了ReaderContext)
 		this.delegate = createDelegate(getReaderContext(), root, parent);
         // <2>检查 <beans /> 根标签的命名空间是否为空，或者是 http://www.springframework.org/schema/beans
+		// 】】】判断是否是默认命名空间，就是spring自己定义的标签啊
 		if (this.delegate.isDefaultNamespace(root)) {
             // <2.1> 处理 profile 属性。可参见《Spring3自定义环境配置 <beans profile="">》http://nassir.iteye.com/blog/1535799
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
@@ -177,15 +178,21 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * "import", "alias", "bean".
 	 * @param root the DOM root element of the document
 	 */
+	/*
+		Spring 有两种 Bean 声明方式：
+			配置文件式声明：<bean id="studentService" class="org.springframework.core.StudentService" /> 。对应 <1> 处。
+			自定义注解方式：<tx:annotation-driven> 。对应 <2> 处。
+	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
-	    // <1> 如果根节点使用默认命名空间，执行默认解析
+	    // <1> 如果根节点使用默认命名空间，【执行默认解析】
+		// 】】】判断是否是默认命名空间，就是spring自己定义的标签啊
 		if (delegate.isDefaultNamespace(root)) {
 		    // 遍历子节点
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node node = nl.item(i);
 				if (node instanceof Element) {
-					Element ele = (Element) node;
+					Element ele = (Element) node; // 就是xml的<bean id="studentService"标签信息
 					// <1> 如果该节点使用默认命名空间，执行默认解析
 					if (delegate.isDefaultNamespace(ele)) {
 						parseDefaultElement(ele, delegate);
@@ -202,11 +209,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		} else {
 			delegate.parseCustomElement(root);
 		}
-		/*
-			Spring 有两种 Bean 声明方式：
-				配置文件式声明：<bean id="studentService" class="org.springframework.core.StudentService" /> 。对应 <1> 处。
-				自定义注解方式：<tx:annotation-driven> 。对应 <2> 处。
-		 */
+
 	}
 
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
@@ -335,7 +338,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 */
 	/*
 		解析工作分为三步：
-			1、解析默认标签。
+			1、解析默认标签（bean定义的标签）。
 			2、解析默认标签后下得自定义标签。
 			3、注册解析后的 BeanDefinition 。
 	 */
@@ -348,6 +351,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		 */
 	    // <1> 进行 bean 元素解析。
 		// ！！！具体实现是委托 BeanDefinitionReaderUtils 创建AbstractBeanDefinition对象
+		/*
+			beanName ，优先，使用 id
+			beanName ，其次，使用 aliases 的第一个
+		 */
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 
 
@@ -355,6 +362,12 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		    // <2> 进行自定义标签处理
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
+
+				/*
+					注册 BeanDefinition过程（在BeanDefinitionReaderUtils进行注册）
+						1.首先，通过 beanName 注册 BeanDefinition 。详细解析，见 2.1 通过 beanName 注册 。——BeanDefinitionRegistry
+						2.然后，再通过注册别名 alias 和 beanName 的映射。详细解析，见 2.2 注册 alias 和 beanName 的映射——AliasRegistry
+				 */
 			    // 】】】<3> 对 bdHolder 进行 BeanDefinition 的注册
 				//  ！！！具体注册是委托 BeanDefinitionReaderUtils 创建注册
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());

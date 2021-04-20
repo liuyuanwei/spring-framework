@@ -25,40 +25,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.lang.Nullable;
 
-/**
- * Extension of the {@link org.springframework.beans.factory.BeanFactory}
- * interface to be implemented by bean factories that are capable of
- * autowiring, provided that they want to expose this functionality for
- * existing bean instances.
- *
- * <p>This subinterface of BeanFactory is not meant to be used in normal
- * application code: stick to {@link org.springframework.beans.factory.BeanFactory}
- * or {@link org.springframework.beans.factory.ListableBeanFactory} for
- * typical use cases.
- *
- * <p>Integration code for other frameworks can leverage this interface to
- * wire and populate existing bean instances that Spring does not control
- * the lifecycle of. This is particularly useful for WebWork Actions and
- * Tapestry Page objects, for example.
- *
- * <p>Note that this interface is not implemented by
- * {@link org.springframework.context.ApplicationContext} facades,
- * as it is hardly ever used by application code. That said, it is available
- * from an application context too, accessible through ApplicationContext's
- * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
- * method.
- *
- * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
- * interface, which exposes the internal BeanFactory even when running in an
- * ApplicationContext, to get access to an AutowireCapableBeanFactory:
- * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
- *
- * @author Juergen Hoeller
- * @since 04.12.2003
- * @see org.springframework.beans.factory.BeanFactoryAware
- * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
- * @see org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()
- */
 /*
 	对于想要拥有自动装配能力，并且想要把这种能力暴露给外部应用BeanFactory类需要实现此接口。
 
@@ -71,17 +37,22 @@ import org.springframework.lang.Nullable;
 　　如果一个类实现了此接口，那么很大程度上它还需要实现BeanFactoryWare接口。它可以在应用上下文中返回BeanFactory;
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
-	// 常量，用于标识外部自动装配功能是否可用。但是此标识不影响正常的（基于注解的等）自动装配功能的使用
+
+	// 常量【不装配】，用于标识外部自动装配功能是否可用。但是此标识不影响正常的（基于注解的等）自动装配功能的使用
 	int AUTOWIRE_NO = 0;
-	// 标识按名装配的常量
+	// 标识按名装配的常量【根据名称装配】
 	int AUTOWIRE_BY_NAME = 1;
-	// 标识按类型自动装配的常量
+	// 标识按类型自动装配的常量【根据类型装配】
 	int AUTOWIRE_BY_TYPE = 2;
-	// 标识按照贪婪策略匹配出的最符合的构造方法来自动装配的常量
+	// 标识按照贪婪策略匹配出的最符合的构造方法来自动装配的常量【根据构造器装配】
 	int AUTOWIRE_CONSTRUCTOR = 3;
-	// 标识自动识别一种装配策略来实现自动装配的常量
+
+	// 标识自动识别一种装配策略来实现自动装配的常量【Spring 3.0就过期了，不作介绍】
 	@Deprecated
 	int AUTOWIRE_AUTODETECT = 4;
+
+	// 该属性是一种约定俗成的用法：
+	// 	以类全限定名+.ORIGINAL 作为Bean Name，用于告诉Spring，在初始化的时候，需要返回原始给定实例，而别返回代理对象
 	String ORIGINAL_INSTANCE_SUFFIX = ".ORIGINAL";
 
 	// 创建一个给定Class的实例。

@@ -36,15 +36,15 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Juergen Hoeller
  * @since 2.5.1
+ * 学习
+ * 		https://blog.csdn.net/qq_25179481/article/details/99618098
  */
 public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 
 	/**
      * Cache of singleton objects created by FactoryBeans: FactoryBean name to object.
-     *
      * 缓存 FactoryBean 创建的单例 Bean 对象的映射
      * beanName ===> Bean 对象
-     *
      * @see #getCachedObjectForFactoryBean(String)
      */
 	private final Map<String, Object> factoryBeanObjectCache = new ConcurrentHashMap<>(16);

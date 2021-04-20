@@ -490,7 +490,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			if (interceptorsElement != null) {
 				interceptors.setSource(source);
 				for (Element converter : DomUtils.getChildElementsByTagName(interceptorsElement, "bean")) {
-					BeanDefinitionHolder beanDef = context.getDelegate().parseBeanDefinitionElement(converter);
+					BeanDefinitionHolder beanDef = context.getDelegate().NparseBeanDefinitionElement(converter);
 					if (beanDef != null) {
 						beanDef = context.getDelegate().decorateBeanDefinitionIfRequired(converter, beanDef);
 						interceptors.add(beanDef);
